@@ -60,7 +60,10 @@ function App() {
       <input id="show-unincluded-songs" type="checkbox" checked={showBleh} onChange={e => setShowBleh(!showBleh)} />
 
       <div>
-        <h4>Kan je een liedje niet vinden? Voeg hem gerust toe aan <a target="_blank" href="https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=662322638dc848f8&pt=81047987f8f5595d761cf80d9a6d31fd" rel="noreferrer">deze Spotify-playlist</a></h4>
+        <h4>
+          Kan je een liedje niet vinden? Voeg hem gerust toe aan <a href="https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=662322638dc848f8&pt=81047987f8f5595d761cf80d9a6d31fd" target="_blank" rel="noreferrer">deze Spotify-playlist, dan ga ik kijken of ik er een ultrastar-chart voor kan vinden!</a><br/>
+          Of als je ultrastar-bestanden voor me hebt: nog chiller! Je kan die <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">hierzo</a> achterlaten!
+        </h4>
       </div>
 
       <h2>Song results ({displaySongs.length})</h2>
