@@ -61,7 +61,7 @@ function App() {
 
       <div>
         <h4>
-          Kan je een liedje niet vinden? Voeg hem gerust toe aan <a href="https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=662322638dc848f8&pt=81047987f8f5595d761cf80d9a6d31fd" target="_blank" rel="noreferrer">deze Spotify-playlist, dan ga ik kijken of ik er een ultrastar-chart voor kan vinden!</a><br/>
+          Kan je een liedje niet vinden? Voeg hem gerust toe aan <a href="https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=FYC1-3yqTXa7ykpUpwb-Dg&utm_source=copy-link&pt=f428a62b89147f96c7d7c52964cbc863" target="_blank" rel="noreferrer">deze Spotify-playlist, dan ga ik kijken of ik er een ultrastar-chart voor kan vinden!</a><br/>
           Of als je ultrastar-bestanden voor me hebt: nog chiller! Je kan die <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">hierzo</a> achterlaten!
         </h4>
       </div>
