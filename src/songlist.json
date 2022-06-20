@@ -311,7 +311,8 @@
     "Yukari Tamura : Happy! Lucky! Dochy! (TV)",
     "Yukari Tamura : Oshiete A to Z (TV)",
     "Yukari Tamura : Ureshii Sora no Tobikata",
-    "Yukari Tamura, Kaori Nazuka & Haruka Tomatsu : Mahou Shoujo Magical-tan! (TV)"
+    "Yukari Tamura, Kaori Nazuka & Haruka Tomatsu : Mahou Shoujo Magical-tan! (TV)",
+    "桜Trick : Won(＊3＊)Chu KissMe!"
   ],
   "j-alt": [
     "Affective Synergy : In the Dawn (TV)",
@@ -1706,6 +1707,7 @@
     "IOSYS : Scarlet Police on Ghetto Patrol in 24 Hours",
     "IOSYS : These Two Wings",
     "IOSYS : Usatei",
+    "IOSYS : ウサテイ2011",
     "IOSYS : 惑いて来たれ、遊惰な神隠し ～ Border of Death (ネクロファンタジア)",
     "IOSYS : 魔理沙は大変なものを盗んでいきました",
     "Innocent Key : The Brutal Sisters and Suffering Maid (PV)",
@@ -1724,7 +1726,8 @@
     "Tanabata : Unknown Girl",
     "Tim Vegas feat. NAGI : Chen no Gensokyo Ondo",
     "Ultra-Prism : Sinryaku no Susume (TV)",
-    "Yuuhei Satellite : Tsuki ni Murakumo Hana ni Kaze (Short Ver.)"
+    "Yuuhei Satellite : Tsuki ni Murakumo Hana ni Kaze (Short Ver.)",
+    "nachi : とびだせ！バンキッキ"
   ],
   "vocaloid": [
     "ASY feat. IA : SEE THE LIGHTS",
@@ -4183,5 +4186,30 @@
     "ZZ Top : Gimme All Your Lovin",
     "a-ha : Take On Me",
     "jan smit : Als de morgen is gekomen"
+  ],
+  "misc-western": [
+    "Breakbot feat. Irfane : Baby I'm Yours",
+    "Daft Punk : Around The World",
+    "Daft Punk : Digital Love",
+    "Daft Punk : One More Time",
+    "Daft Punk : Technologic",
+    "Daft Punk ft. Julian Casablancas : Instant Crush",
+    "Daft Punk ft. Pharrell : Lose Yourself to Dance",
+    "Michael Jackson : Bad",
+    "Michael Jackson : Black or white",
+    "Michael Jackson : Man In The Mirror",
+    "Michael Jackson : Smooth Criminal",
+    "Michael Jackson : Smooth Criminal [Moonwalker]",
+    "Michael Jackson : The Way You Make Me Feel",
+    "Michael Jackson : Wanna be starting something",
+    "The Weeknd : Blinding Lights",
+    "The Weeknd : Can't Feel My Face",
+    "The Weeknd : Out of Time",
+    "The Weeknd : Take My Breath"
+  ],
+  "suggestions": [
+    "Bo Burnham : Welcome To The Internet",
+    "Cynthia Harrell : Snake Eater",
+    "Jonathan Coulton : Still Alive"
   ]
 }
