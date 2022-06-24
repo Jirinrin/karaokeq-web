@@ -312,7 +312,8 @@
     "Yukari Tamura : Oshiete A to Z (TV)",
     "Yukari Tamura : Ureshii Sora no Tobikata",
     "Yukari Tamura, Kaori Nazuka & Haruka Tomatsu : Mahou Shoujo Magical-tan! (TV)",
-    "桜Trick : Won(＊3＊)Chu KissMe!"
+    "桜Trick : Won(＊3＊)Chu KissMe! [LyricsVideo]",
+    "花澤香菜 : 恋愛サーキュレーション [LyricsVideo]"
   ],
   "j-alt": [
     "Affective Synergy : In the Dawn (TV)",
@@ -1707,7 +1708,8 @@
     "IOSYS : Scarlet Police on Ghetto Patrol in 24 Hours",
     "IOSYS : These Two Wings",
     "IOSYS : Usatei",
-    "IOSYS : ウサテイ2011",
+    "IOSYS : ウサテイ2011 [LyricsVideo]",
+    "IOSYS : 患部で止まってすぐ溶ける～狂気の優曇華院 [LyricsVideo]",
     "IOSYS : 惑いて来たれ、遊惰な神隠し ～ Border of Death (ネクロファンタジア)",
     "IOSYS : 魔理沙は大変なものを盗んでいきました",
     "Innocent Key : The Brutal Sisters and Suffering Maid (PV)",
@@ -1727,7 +1729,10 @@
     "Tim Vegas feat. NAGI : Chen no Gensokyo Ondo",
     "Ultra-Prism : Sinryaku no Susume (TV)",
     "Yuuhei Satellite : Tsuki ni Murakumo Hana ni Kaze (Short Ver.)",
-    "nachi : とびだせ！バンキッキ"
+    "nachi : とびだせ！バンキッキ [LyricsVideo]",
+    "あすとらるとりっぷ : 砕月 [LyricsVideo]",
+    "魂音泉 : ゆけむり魂温泉 II [LyricsVideo]",
+    "魂音泉 : 酔いどれ幻想郷 [LyricsVideo]"
   ],
   "vocaloid": [
     "ASY feat. IA : SEE THE LIGHTS",
@@ -4195,21 +4200,42 @@
     "Daft Punk : Technologic",
     "Daft Punk ft. Julian Casablancas : Instant Crush",
     "Daft Punk ft. Pharrell : Lose Yourself to Dance",
+    "Michael Jackson : Another part of me",
     "Michael Jackson : Bad",
     "Michael Jackson : Black or white",
     "Michael Jackson : Man In The Mirror",
+    "Michael Jackson : P.Y.T. (Pretty Young Thing)",
     "Michael Jackson : Smooth Criminal",
     "Michael Jackson : Smooth Criminal [Moonwalker]",
     "Michael Jackson : The Way You Make Me Feel",
     "Michael Jackson : Wanna be starting something",
     "The Weeknd : Blinding Lights",
     "The Weeknd : Can't Feel My Face",
+    "The Weeknd : In The Night",
     "The Weeknd : Out of Time",
     "The Weeknd : Take My Breath"
   ],
   "suggestions": [
-    "Bo Burnham : Welcome To The Internet",
+    "30 Seconds to Mars : The kill",
+    "30 Seconds to mars : Kings and queens",
+    "Alanis Morissette : You oughta know",
+    "Blues Brothers : Rawhide [LyricsVideo]",
+    "Bo Burnham : All Eyes On Me [LyricsVideo]",
+    "Bo Burnham : Bezos I [LyricsVideo]",
+    "Bo Burnham : Comedy [LyricsVideo]",
+    "Bo Burnham : Goodbye [LyricsVideo]",
+    "Bo Burnham : Problematic [LyricsVideo]",
+    "Bo Burnham : Welcome To The Internet [LyricsVideo]",
+    "Casey Edwards, Victor Borba : Bury The Light [LyricsVideo]",
     "Cynthia Harrell : Snake Eater",
-    "Jonathan Coulton : Still Alive"
+    "David Bowie : Modern Love",
+    "Daði Freyr : 10 Years [LyricsVideo]",
+    "Daði Freyr ft. Blær : Endurtaka Mig [LyricsVideo]",
+    "Green Day : 21st Century Breakdown",
+    "Green Day : Murder City",
+    "Jason Charles Miller : Rules of Nature [LyricsVideo]",
+    "Jonathan Coulton : Still Alive",
+    "The Beatles : With A Little Help From My Friends",
+    "The Psychedelic Furs : Love my way"
   ]
 }
