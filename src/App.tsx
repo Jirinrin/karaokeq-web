@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import songlist from './songlist.json'
 
+const SPOTIFYURL = "https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=ARwI8ycMT-e_Ozj8egV2Rw&utm_source=copy-link&pt=facdf6e8a5299f2e39644046f1e07802"
+
 type Genre = keyof typeof songlist
 const GENRES = Object.keys(songlist) as Genre[]
 
@@ -61,7 +63,7 @@ function App() {
 
       <div>
         <h4>
-          Kan je een liedje niet vinden? Voeg hem gerust toe aan <a href="https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=vXlPevKvR6upVl7SFASrbQ&utm_source=copy-link&pt=1e7e354bd6d87ea25212149728aaf846" target="_blank" rel="noreferrer">deze Spotify-playlist, dan ga ik kijken of ik er een ultrastar-chart voor kan vinden!</a><br/>
+          Kan je een liedje niet vinden? Voeg hem gerust toe aan <a href={SPOTIFYURL} target="_blank" rel="noreferrer">deze Spotify-playlist, dan ga ik kijken of ik er een ultrastar-chart voor kan vinden!</a><br/>
           Of als je ultrastar-bestanden voor me hebt: nog chiller! Je kan die <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">hierzo</a> achterlaten!
         </h4>
       </div>
