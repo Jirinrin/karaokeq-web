@@ -35,7 +35,7 @@ function App() {
     const songs = [...genresToShow.flatMap(g => songlist[g].map((s): [string, Genre] => [s, g]))].sort((a,b) => a[0].localeCompare(b[0]))
     if (!srch) setDisplaySongs(songs);
 
-    const terms = srch.split(' ').map(t => t.trim())
+    const terms = srch.toLowerCase().split(' ').map(t => t.trim())
     setDisplaySongs(songs.filter(([s]) => {const sl = s.toLowerCase(); return terms.every(t => sl.includes(t))}))
   }, [genresToShow, srch]);
 
