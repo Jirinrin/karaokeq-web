@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import songlist from './songlist.json'
 
-const SPOTIFYURL = "https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=iFbo7QihTc-wjtBG8sjkCQ&utm_source=copy-link&pt=feb31d9fba4a9532280f244aecdfed64"
+const SPOTIFYURL = `
+https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=8619e5362717c4f181468575c027da4d
+`.trim()
 
 type Genre = keyof typeof songlist
 const GENRES = Object.keys(songlist) as Genre[]
