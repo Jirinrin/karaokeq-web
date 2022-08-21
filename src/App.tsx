@@ -3,6 +3,7 @@ import { DebounceInput } from 'react-debounce-input';
 import songlist from './songlist.json'
 import './App.scss'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SPOTIFYURL = `
 https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=8619e5362717c4f181468575c027da4d
 `.trim()
