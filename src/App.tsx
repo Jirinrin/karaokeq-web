@@ -52,7 +52,7 @@ function App() {
 
   return (
     <div className="App">
-      <video poster="https://performous.org/bgs/GoldenDust.jpg" autoPlay={true} loop={true} src="https://performous.org/bgs/GoldenDust.webm" className='bg-video'></video>
+      <video poster="https://performous.org/bgs/GoldenDust.jpg" autoPlay muted loop src="https://performous.org/bgs/GoldenDust.webm" className='bg-video'></video>
       <h1>Karaoke songlist dinges</h1>
       <div className='searchbox'>
         <label htmlFor='searchbox'>Search:</label>
