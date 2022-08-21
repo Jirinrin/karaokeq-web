@@ -16,8 +16,8 @@ body {
   top: 50vh;
   left: 50vw;
   transform: translate(-50%, -50%);
-  height: 100vh;
-  width: auto;
+  min-height: 100vh;
+  min-width: 100vw;
   filter: brightness(0.5) contrast(1.7);
 }
 
