@@ -69,18 +69,18 @@ function App() {
         )}
       </div>
 
-      <div className='show-unincluded'>
+      {/* <div className='show-unincluded'>
         <label htmlFor="show-unincluded-songs">Show unincluded songs:</label>
         <input id="show-unincluded-songs" type="checkbox" checked={showBleh} onChange={e => setShowBleh(!showBleh)} />
-      </div>
+      </div> */}
 
 
-      <div className='notice'>
+      {/* <div className='notice'>
         <h4>
           Kan je een liedje niet vinden? Voeg hem gerust toe aan <a href={SPOTIFYURL} target="_blank" rel="noreferrer">deze Spotify-playlist, dan ga ik kijken of ik er een ultrastar-chart voor kan vinden!</a><br/>
           Of als je ultrastar-bestanden voor me hebt: nog chiller! Je kan die <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">hierzo</a> achterlaten!
         </h4>
-      </div>
+      </div> */}
 
       <h2>Song results ({displaySongs.length})</h2>
       <ul>
