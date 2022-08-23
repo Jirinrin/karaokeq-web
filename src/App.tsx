@@ -18,6 +18,7 @@ function isGenre(g: Genre) { return g !== 'bleh'; }
 
 function App() {
   const [srch, setSrch] = useState('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showBleh, setShowBleh] = useState(false)
   const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
   // todo: sorting
