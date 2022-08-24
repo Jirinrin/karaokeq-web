@@ -11,7 +11,7 @@ https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=
 type Genre = keyof typeof songlist
 const GENRES = Object.keys(songlist) as Genre[]
 
-const COLORS = '#77dd77#89cff0#b2fba5#bdb0d0#befd73#FDFD96#c1c6fc#ff6961#ff9899#ffb7ce#ca9bf7#aaf0d1#ffffd1#c4fafb#fbe4ff#f6a6ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
+const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
 const genreToColor = Object.fromEntries(GENRES.map((g,i) => [g, COLORS[i]]))
 
 function isGenre(g: Genre) { return g !== 'bleh'; }
