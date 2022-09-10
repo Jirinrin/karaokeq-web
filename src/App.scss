@@ -2,17 +2,22 @@
 
 body {
   background-color: rgb(44, 44, 44);
-  margin: 30px 20px;
+  overflow-x: hidden;
 }
 
 * {
   font-family: 'Noto Sans', sans-serif;
   color: rgb(238, 238, 238);
+  box-sizing: border-box;
 }
 
 .App {
   max-width: 1100px;
   margin: auto;
+
+  > * {
+    margin: 0 20px;
+  }
 }
 
 .bg-video {
@@ -26,18 +31,97 @@ body {
   filter: brightness(0.5) contrast(1.7);
 }
 
-button {
+button, .link-btn {
   margin-left: 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid rgb(76, 76, 76);
   background-color: black;
   padding: 1.5px 6px;
   transition: all .3s ease;
   &:hover {
     background-color: rgb(55, 55, 55);
+    cursor: pointer;
   }
   &:active {
     background-color: rgb(72, 72, 72);
+  }
+}
+
+.link-btn {
+  background: #121212a3;
+  padding: 9px 13px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: block;
+  border: none;
+  backdrop-filter: blur(5px);
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+
+  @media screen and (max-width: 600px) {
+    display: block;
+    text-align: center;
+  }
+}
+
+.sticky-link-btn {
+  position: sticky;
+  top: 17px;
+  margin-top: 14px;
+  margin-left: 0;
+  float: right;
+}
+
+.pane {
+  background-attachment: fixed;
+  backdrop-filter: blur(5px);
+  background-color: rgba(24, 24, 24, 0.567);
+  padding: 10px 15px;
+  border-radius: 6px;
+}
+
+.sticky-section {
+  position: sticky;
+  margin: -14px;
+  left: 14px;
+  top: 14px;
+  right: 14px;
+  margin-bottom: 30px;
+
+  
+  .back-to-queue-btn {
+    // position: sticky;
+    float: right;
+    // right: 14px;
+    top: 107px;
+    display: block;
+    margin: 14px 0 0;
+  }
+
+  .selected-song {
+    transition: all .5s ease;
+    position: fixed;
+    bottom: 14px;
+    background-color: rgba(255, 255, 255, 0.674);
+    max-width: 80vw;
+    p {
+      font-size: 10px;
+      margin-top: 0;
+      margin-bottom: 4px;
+      color: black;
+    }
+    h2 {
+      color: black;
+      margin: 0;
+      // font-size: 1.4rem;
+      line-height: 120%;
+    }
+    &.invisible {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    button {
+      margin: 8px 0 0;
+    }
   }
 }
 
@@ -45,14 +129,14 @@ button {
   input {
     background-color: rgb(19, 19, 19);
     border: 1px solid rgb(76, 76, 76);
-    border-radius: 4px;
+    border-radius: 6px;
     margin-left: 4px;
   }
 }
 
 .category-filter {
   padding-right: 5px;
-  border-radius: 4px;
+  border-radius: 6px;
   white-space: nowrap;
   margin-right: 3px;
   margin-top: 6px;
@@ -62,11 +146,16 @@ button {
   }
 }
 
+em {
+  opacity: .7;
+  font-weight: 100;
+}
+
 .show-unincluded {
   margin-top: 6px;
   display: inline-block;
   padding: 3px 9px;
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: black;
 }
 
@@ -78,6 +167,7 @@ ul {
   margin-top: 16px;
   background-color: rgb(24, 24, 24);
   padding: 5px 10px;
+  border-radius: 6px;
 
   > * {
     margin: 0;
@@ -96,11 +186,26 @@ ul {
   }
 
   .song-name {
-    background-color: rgb(30 30 30);
-    border-radius: 4px;
+    background-color: rgb(23, 23, 23);
+    border-radius: 6px;
     padding: $pddng;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
+
+    &.clickable {
+      cursor: pointer;
+      transition: all .2s ease;
+      &:hover {
+        background-color: rgb(43, 43, 43);
+      }
+      &.selected {
+        background-color: white;
+        color: black;
+        &:hover {
+          background-color: rgb(222, 222, 222);
+        }
+      }
+    }
   }
 
   span {
@@ -109,10 +214,47 @@ ul {
 }
 
 .category-chip {
+  background-color: white;
   padding: 1px 5px;
   margin-inline-start: 10px;
-  border-radius: 4px;
+  border-radius: 6px;
   color: black;
   white-space: nowrap;
   font-size: 12px;
+}
+
+.votes-count {
+  background-color: white;
+  padding: 2px 7px;
+  margin-inline-start: 10px;
+  border-radius: 40px;
+  color: black;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.vote-btn {
+  border-radius: 40px;
+  padding: 4px 15px;
+  &:hover {
+    color: white;
+  }
+  &:disabled {
+    background-color: black;
+    color: white;
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.q-item-label {
+  font-size: 13px;
+  margin: 0 0 4px;
+}
+
+.q-item-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
 }
