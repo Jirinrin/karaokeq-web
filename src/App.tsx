@@ -11,6 +11,9 @@ https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=
 type Genre = keyof typeof songlist
 const GENRES = Object.keys(songlist) as Genre[]
 
+const weebKeys = GENRES.filter((k) => k.match(/^[jk]-/))
+const westKeys = GENRES.filter((k) => k.startsWith('w-'))
+
 const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
 const genreToColor = Object.fromEntries(GENRES.map((g,i) => [g, COLORS[i]]))
 
@@ -20,9 +23,9 @@ function App() {
   const [srch, setSrch] = useState('')
   const [showUnincluded, setShowUnincluded] = useState(false)
   const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
+
   // todo: sorting
 
-  // const filters = Object.keys
   function toggleInclFilter(g: Genre) {
     setInclFilters({...inclFilters, [g]: !inclFilters[g]})
   }
@@ -67,6 +70,14 @@ function App() {
             <label htmlFor={`filter-${g}`}>{g}</label>
           </span>
         )}
+        <span style={{backgroundColor: 'white'}} className='category-filter'>
+          <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
+          <label htmlFor={`filter-west`}><em>west</em></label>
+        </span>
+        <span style={{backgroundColor: 'white'}} className='category-filter'>
+          <input id={`filter-weeb`} type="checkbox" checked={weebKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(weebKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
+          <label htmlFor={`filter-weeb`}><em>east</em></label>
+        </span>
       </div>
 
       <div className='show-unincluded'>
