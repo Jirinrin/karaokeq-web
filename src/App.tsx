@@ -14,11 +14,11 @@ const GENRES = Object.keys(songlist) as Genre[]
 const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
 const genreToColor = Object.fromEntries(GENRES.map((g,i) => [g, COLORS[i]]))
 
-function isGenre(g: Genre) { return g !== 'bleh'; }
+function isGenre(g: Genre) { return g !== 'unincluded'; }
 
 function App() {
   const [srch, setSrch] = useState('')
-  const [showBleh, setShowBleh] = useState(false)
+  const [showUnincluded, setShowUnincluded] = useState(false)
   const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
   // todo: sorting
 
@@ -30,11 +30,11 @@ function App() {
   const genresToShow = useMemo(() => {
     if (Object.values(inclFilters).includes(true))
       return GENRES.filter(g => inclFilters[g])
-    else if (!showBleh)
+    else if (!showUnincluded)
       return GENRES.filter(isGenre)
     else
       return GENRES
-  }, [inclFilters, showBleh]);
+  }, [inclFilters, showUnincluded]);
 
   const [displaySongs, setDisplaySongs] = useState<[string, Genre][]>([])
 
@@ -71,7 +71,7 @@ function App() {
 
       <div className='show-unincluded'>
         <label htmlFor="show-unincluded-songs">Show unincluded songs:</label>
-        <input id="show-unincluded-songs" type="checkbox" checked={showBleh} onChange={e => setShowBleh(!showBleh)} />
+        <input id="show-unincluded-songs" type="checkbox" checked={showUnincluded} onChange={e => setShowUnincluded(!showUnincluded)} />
       </div>
 
 
