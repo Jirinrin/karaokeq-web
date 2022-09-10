@@ -2,7 +2,6 @@ import "./App.scss";
 import SongList from "./pages/Songlist";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Queue from "./pages/Queue";
-import NameWidget from "./pages/NameWidget";
 
 /*
 Structure: (karaoke.jirinrin.com)
