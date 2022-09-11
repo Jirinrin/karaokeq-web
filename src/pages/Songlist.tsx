@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import songlist from '../songlist.json'
 import { useApi } from '../util/api';
-import { useAppContext } from '../util/Context';
+import { Genre, GENRES, isGenre, songlist, useAppContext } from '../util/Context';
 import NameWidget from './NameWidget';
 
-type Genre = keyof typeof songlist
-const GENRES = Object.keys(songlist) as Genre[]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SPOTIFYURL = `
@@ -20,17 +17,14 @@ const westKeys = GENRES.filter((k) => k.startsWith('w-'))
 const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
 const genreToColor = Object.fromEntries(GENRES.map((g,i) => [g, COLORS[i]]))
 
-function isGenre(g: Genre) { return g !== 'unincluded'; }
-
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
   const api = useApi()
-  const {queue, setQueue} = useAppContext()
+  const {queue, setQueue, inclFilters, setInclFilters} = useAppContext()
   const navigate = useNavigate()
   
   const [srch, setSrch] = useState('')
   const [showUnincluded, setShowUnincluded] = useState(false)
-  const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
 
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
   const [shownSelectedSong, setShownSelectedSong] = useState<string>('')
@@ -76,7 +70,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     <div className='input-block pane searchbox'>
       <label htmlFor='searchbox'> 🔍 Search:</label>
       <div className="input-wrapper">
-        <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} />
+        <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} placeholder="Search by title/artist" />
         <button className='clear-btn' onClick={() => setSrch('')}>×</button>
       </div>
     </div>
