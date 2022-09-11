@@ -75,7 +75,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       </div>
     </div>
 
-  const selectedSongAlreadyInQ = !!queue.find(s => s.id === selectedSong)
+  const selectedSongAlreadyInQ = !!queue.find(s => s.id === shownSelectedSong)
+  const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && songlist.unincluded.includes(shownSelectedSong), [shownSelectedSong])
 
   return (
     <div className='Songlist'>
@@ -90,8 +91,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           <div className={`selected-song pane ${selectedSong ? '' : 'invisible'}`}>
             <p>Selected song</p>
             <h2>{shownSelectedSong.replace(' : ', ' - ')}</h2>
-            <button className='link-btn' disabled={selectedSongAlreadyInQ} onClick={() => selectedSong && requestSong(selectedSong)}>
-              {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : 'REQUEST SONG'}
+            <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
+              {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
             </button>
           </div>
         </div>
