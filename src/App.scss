@@ -47,6 +47,12 @@ button, .link-btn {
   &:active {
     background-color: rgb(72, 72, 72);
   }
+  &:disabled {
+    opacity: .5;
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
 }
 
 .link-btn {
@@ -293,11 +299,9 @@ ul {
     color: white;
   }
   &:disabled {
+    opacity: 1;
     background-color: black;
     color: white;
-    &:hover {
-      cursor: not-allowed;
-    }
   }
 }
 

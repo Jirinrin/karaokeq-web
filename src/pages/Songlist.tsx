@@ -25,7 +25,7 @@ function isGenre(g: Genre) { return g !== 'unincluded'; }
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
   const api = useApi()
-  const {setQueue} = useAppContext()
+  const {queue, setQueue} = useAppContext()
   const navigate = useNavigate()
   
   const [srch, setSrch] = useState('')
@@ -39,7 +39,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     api('post', 'request', {songId}).then(q => {
       setQueue(q)
       navigate(`/${domain}`)
-    }), [api, domain, navigate, setQueue])
+    }).catch(e => console.error('ahhhh', e)),
+  [api, domain, navigate, setQueue])
 
   useEffect(() => {
     if (selectedSong)
@@ -73,12 +74,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   const searchBox = 
     <div className='input-block pane searchbox'>
-      <label htmlFor='searchbox'>Search:</label>
+      <label htmlFor='searchbox'> 🔍 Search:</label>
       <div className="input-wrapper">
         <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} />
-        <button className='clear-btn' onClick={() => setSrch('')}>Clear</button>
+        <button className='clear-btn' onClick={() => setSrch('')}>×</button>
       </div>
     </div>
+
+  const selectedSongAlreadyInQ = !!queue.find(s => s.id === selectedSong)
 
   return (
     <div className='Songlist'>
@@ -93,7 +96,9 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           <div className={`selected-song pane ${selectedSong ? '' : 'invisible'}`}>
             <p>Selected song</p>
             <h2>{shownSelectedSong.replace(' : ', ' - ')}</h2>
-            <button className='link-btn' onClick={() => selectedSong && requestSong(selectedSong)}>REQUEST SONG</button>
+            <button className='link-btn' disabled={selectedSongAlreadyInQ} onClick={() => selectedSong && requestSong(selectedSong)}>
+              {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : 'REQUEST SONG'}
+            </button>
           </div>
         </div>
       )}
