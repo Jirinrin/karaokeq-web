@@ -27,7 +27,9 @@ export default function Queue() {
 
   return (
     <div className="Queue">
-      <NameWidget />
+      <div className="input-block-flekz">
+        <NameWidget />
+      </div>
       <Link to={`/${domain}/songlist`} className="link-btn sticky-link-btn">REQUEST A SONG</Link>
       <h1>Queue</h1>
 

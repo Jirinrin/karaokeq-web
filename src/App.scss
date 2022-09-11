@@ -83,56 +83,107 @@ button, .link-btn {
 
 .sticky-section {
   position: sticky;
-  margin: -14px;
+  margin: -5px;
   left: 14px;
   top: 14px;
   right: 14px;
   margin-bottom: 30px;
+}
 
-  
-  .back-to-queue-btn {
-    // position: sticky;
-    float: right;
-    // right: 14px;
-    top: 107px;
+.back-to-queue-btn {
+  position: sticky;
+  float: right;
+  // right: 14px;
+  top: 107px;
+  display: block;
+  margin: 14px 0 0;
+}
+
+.selected-song {
+  transition: all .5s ease;
+  position: fixed;
+  bottom: 14px;
+  background-color: rgba(255, 255, 255, 0.674);
+  max-width: 80vw;
+  p {
+    font-size: 10px;
+    margin-top: 0;
+    margin-bottom: 4px;
+    color: black;
+  }
+  h2 {
+    color: black;
+    margin: 0;
+    // font-size: 1.4rem;
+    line-height: 120%;
+  }
+  &.invisible {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  button {
+    margin: 8px 0 0;
+  }
+}
+
+.input-block {
+  margin-top: 14px;
+  border-radius: 6px;
+  width: 100%;
+
+  label {
+    font-size: 10px;
+    margin-bottom: 7px;
     display: block;
-    margin: 14px 0 0;
   }
 
-  .selected-song {
-    transition: all .5s ease;
-    position: fixed;
-    bottom: 14px;
-    background-color: rgba(255, 255, 255, 0.674);
-    max-width: 80vw;
-    p {
-      font-size: 10px;
-      margin-top: 0;
-      margin-bottom: 4px;
-      color: black;
-    }
-    h2 {
-      color: black;
+  .input-wrapper {
+    position: relative;
+    .clear-btn {
+      border: none;
+      padding: 4.5px 9px;
       margin: 0;
-      // font-size: 1.4rem;
-      line-height: 120%;
+      position: absolute;
+      right: 8px;
+      transform: translateY(-50%);
+      top: 50%;
     }
-    &.invisible {
-      opacity: 0;
-      transform: translateX(-100%);
-    }
-    button {
-      margin: 8px 0 0;
+
+    input {
+      background-color: rgba(12, 12, 12, 0.878);
+      border: none;
+      border-radius: 6px;
+      padding: 10px 15px;
+      font-size: 16px;
+      width: 100%;
+      display: block;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      text-overflow: clip;
     }
   }
 }
 
 .searchbox {
-  input {
-    background-color: rgb(19, 19, 19);
-    border: 1px solid rgb(76, 76, 76);
-    border-radius: 6px;
-    margin-left: 4px;
+  flex-grow: 1;
+}
+
+.name-widget {
+  max-width: 300px;
+  @media screen and (max-width: 700px) {
+    max-width: 200px;
+  }
+}
+
+.input-block-flekz {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  > .input-block {
+    display: block;
+    float: right;
+    + .input-block {
+      margin-left: 14px;
+    }
   }
 }
 

@@ -75,21 +75,29 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     <div className='Songlist'>
       {qAccess && (
         <div className='sticky-section'>
-          <NameWidget />
+          <div>
+            <div className="input-block-flekz">
+              <div className='input-block pane searchbox'>
+                <label htmlFor='searchbox'>Search:</label>
+                <div className="input-wrapper">
+                  <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} />
+                  <button className='clear-btn' onClick={() => setSrch('')}>Clear</button>
+                </div>
+              </div>
+              <NameWidget />
+
+            </div>
+          </div>
+          <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
+          
           <div className={`selected-song pane ${selectedSong ? '' : 'invisible'}`}>
             <p>Selected song</p>
             <h2>{shownSelectedSong.replace(' : ', ' - ')}</h2>
             <button className='link-btn' onClick={() => selectedSong && requestSong(selectedSong)}>REQUEST SONG</button>
           </div>
-          <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
         </div>
       )}
       <h1>Songlist</h1>
-      <div className='searchbox'>
-        <label htmlFor='searchbox'>Search:</label>
-        <DebounceInput minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} />
-        <button onClick={() => setSrch('')}>Clear</button>
-      </div>
       <div>
         <h3>Category filters</h3>
         {Object.entries(inclFilters).map(([g, checked]) =>
