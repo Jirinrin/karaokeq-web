@@ -302,6 +302,9 @@ ul {
     opacity: 1;
     background-color: black;
     color: white;
+    &.locked {
+      opacity: .4;
+    }
   }
 }
 

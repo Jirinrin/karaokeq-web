@@ -41,7 +41,7 @@ export default function Queue() {
             <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0].match(/[^_]*/)?.[0] || 'Anonymous'})</em></p>
             <div className="q-item-flex">
               <span className="song-name">{s.id.replace(' : ', ' - ')}</span>
-              <button className="votes-count vote-btn" disabled={i < 2 || !!s.votes.find(v => v.includes(sessionToken))} onClick={() => vote(s.id)}>
+              <button className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`} disabled={i < 2 || !!s.votes.find(v => v.includes(sessionToken))} onClick={() => vote(s.id)}>
                 {i < 2
                   ? `${s.votes.length} votes ■`
                   : s.votes.find(v => v.includes(sessionToken))
