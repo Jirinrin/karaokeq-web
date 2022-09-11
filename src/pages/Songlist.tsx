@@ -67,7 +67,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     <div className='input-block pane searchbox'>
       <label htmlFor='searchbox'> 🔍 Search:</label>
       <div className="input-wrapper">
-        <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} placeholder="Search by title/artist" />
+        <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} placeholder="Search query" />
         <button className='clear-btn' onClick={() => setSrch('')}>×</button>
       </div>
     </div>
