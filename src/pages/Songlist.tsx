@@ -71,22 +71,22 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     setDisplaySongs(songs.filter(([s]) => {const sl = s.toLowerCase(); return terms.every(t => sl.includes(t))}))
   }, [genresToShow, srch]);
 
+  const searchBox = 
+    <div className='input-block pane searchbox'>
+      <label htmlFor='searchbox'>Search:</label>
+      <div className="input-wrapper">
+        <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} />
+        <button className='clear-btn' onClick={() => setSrch('')}>Clear</button>
+      </div>
+    </div>
+
   return (
     <div className='Songlist'>
       {qAccess && (
         <div className='sticky-section'>
-          <div>
-            <div className="input-block-flekz">
-              <div className='input-block pane searchbox'>
-                <label htmlFor='searchbox'>Search:</label>
-                <div className="input-wrapper">
-                  <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} />
-                  <button className='clear-btn' onClick={() => setSrch('')}>Clear</button>
-                </div>
-              </div>
-              <NameWidget />
-
-            </div>
+          <div className="input-block-flekz">
+            {searchBox}
+            <NameWidget />
           </div>
           <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
           
@@ -98,6 +98,11 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         </div>
       )}
       <h1>Songlist</h1>
+      {!qAccess &&
+        <div className='sticky-section'>
+          {searchBox}
+        </div>
+      }
       <div>
         <h3>Category filters</h3>
         {Object.entries(inclFilters).map(([g, checked]) =>
