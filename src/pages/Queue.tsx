@@ -43,9 +43,9 @@ export default function Queue() {
               <span className="song-name">{s.id.replace(' : ', ' - ')}</span>
               <button className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`} disabled={i < 2 || !!s.votes.find(v => v.includes(sessionToken))} onClick={() => vote(s.id)}>
                 {i < 2
-                  ? `${s.votes.length} votes ■`
+                  ? `${votesTxt(s.votes.length)} ■`
                   : s.votes.find(v => v.includes(sessionToken))
-                    ? `${s.votes.length} votes ❤`
+                    ? `${votesTxt(s.votes.length)} ❤`
                     : `Vote (${s.votes.length})`
                 }
               </button>
@@ -57,3 +57,5 @@ export default function Queue() {
     </div>
   )
 }
+
+function votesTxt(count: number) { return `${count} vote${count===1 ? '' : 's'}` }
