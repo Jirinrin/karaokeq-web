@@ -3,6 +3,7 @@ import { DebounceInput } from 'react-debounce-input';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApi } from '../util/api';
 import { Genre, GENRES, isGenre, songlist, useAppContext } from '../util/Context';
+import { useLastNonNull } from '../util/hoox';
 import NameWidget from './NameWidget';
 
 
@@ -20,26 +21,19 @@ const genreToColor = Object.fromEntries(GENRES.map((g,i) => [g, COLORS[i]]))
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
   const api = useApi()
-  const {queue, setQueue, inclFilters, setInclFilters} = useAppContext()
+  const {queue, setQueue, inclFilters, setInclFilters, setError} = useAppContext()
   const navigate = useNavigate()
   
   const [srch, setSrch] = useState('')
   const [showUnincluded, setShowUnincluded] = useState(false)
 
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
-  const [shownSelectedSong, setShownSelectedSong] = useState<string>('')
+  const shownSelectedSong = useLastNonNull(selectedSong)
 
-  const requestSong = useCallback((songId: string) =>
-    api('post', 'request', {songId}).then(q => {
-      setQueue(q)
-      navigate(`/${domain}`)
-    }).catch(e => console.error('ahhhh', e)),
-  [api, domain, navigate, setQueue])
-
-  useEffect(() => {
-    if (selectedSong)
-      setShownSelectedSong(selectedSong)
-  }, [selectedSong])
+  const requestSong = useCallback((songId: string) => api('post', 'request', {songId})
+    .then(q => { setQueue(q); navigate(`/${domain}`) })
+    .catch(e => { setError(e.response.text) }),
+  [api, domain, navigate, setError, setQueue])
 
   // todo: sorting
 
@@ -88,9 +82,9 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           </div>
           <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
           
-          <div className={`selected-song pane ${selectedSong ? '' : 'invisible'}`}>
+          <div className={`selected-song pane modal-dialog-thing ${selectedSong ? '' : 'invisible'}`}>
             <p>Selected song</p>
-            <h2>{shownSelectedSong.replace(' : ', ' - ')}</h2>
+            <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
             <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
               {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
             </button>

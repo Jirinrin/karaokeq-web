@@ -6,14 +6,14 @@ import { useAppContext } from "../util/Context";
 import NameWidget from "./NameWidget";
 
 export default function Queue() {
-  const {queue, setQueue} = useAppContext()
+  const {queue, setQueue, setError} = useAppContext()
   const api = useApi()
   const {domain} = useParams()
 
   const refreshInterval = useRef<NodeJS.Timer>()
 
-  const refreshQueue = useCallback(() => api('get', 'q').then(setQueue), [api, setQueue])
-  const vote = useCallback((songId: string) => api('post', 'vote', {songId}).then(setQueue), [api, setQueue])
+  const vote = useCallback((songId: string) => api('post', 'vote', {songId}).then(setQueue).catch(e => setError(e.response.text)),
+   [api, setError, setQueue])
 
   useEffect(() => {
     if (refreshInterval.current) clearInterval(refreshInterval.current)

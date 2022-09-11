@@ -108,12 +108,15 @@ button, .link-btn {
   margin: 14px 0 0;
 }
 
-.selected-song {
+.modal-dialog-thing {
+  background-color: rgba(255, 255, 255, 0.674);
   transition: all .5s ease;
   position: fixed;
-  bottom: 14px;
-  background-color: rgba(255, 255, 255, 0.674);
-  max-width: 80vw;
+
+  &.invisible {
+    opacity: 0;
+    transform: translateY(100%);
+  }
   p {
     font-size: 10px;
     margin-top: 0;
@@ -123,15 +126,43 @@ button, .link-btn {
   h2 {
     color: black;
     margin: 0;
-    // font-size: 1.4rem;
     line-height: 120%;
-  }
-  &.invisible {
-    opacity: 0;
-    transform: translateX(-100%);
   }
   button {
     margin: 8px 0 0;
+  }
+
+  &.selected-song {
+    bottom: 14px;
+    max-width: 80vw;
+  }
+  &.error-modal {
+    top: 50vh;
+    left: 50vw;
+    background-color: #ffababa8;
+    max-width: 300px;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    &.invisible {
+      transform: translate(calc(-50% + 300px), calc(-50% - 200px)) rotate(360deg);
+    }
+
+    button {margin: 15px auto 0;}
+    h2 {font-size: 1.3rem;}
+  }
+}
+
+.backdrop-glass-pane {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.282);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+  transition: opacity .5s ease;
+  top: 0;
+  &.invisible {
+    opacity: 0;
   }
 }
 

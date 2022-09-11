@@ -3,8 +3,8 @@ import { useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useAppContext } from "./Context";
 
-export const API_URL = "https://karaokeq.jirinrin.workers.dev";
-// export const API_URL = "http://localhost:8787";
+export let API_URL = "https://karaokeq.jirinrin.workers.dev";
+// API_URL = "http://localhost:8787";
 
 export const sessionToken = localStorage.getItem('session')
   ?? (() => { const s = Math.random().toString(); localStorage.setItem('session', s); return s })()
