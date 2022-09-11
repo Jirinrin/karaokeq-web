@@ -98,7 +98,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       )}
       <h1>Songlist</h1>
       {!qAccess &&
-        <div className='sticky-section'>
+        <div className='sticky-section anon'>
           {searchBox}
         </div>
       }
