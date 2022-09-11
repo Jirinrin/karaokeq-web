@@ -183,7 +183,7 @@ button, .link-btn {
 .input-block-flekz {
   width: 100%;
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   > .input-block {
     display: block;
     float: right;
@@ -313,5 +313,5 @@ ul {
 .q-item-flex {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
 }
