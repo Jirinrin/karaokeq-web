@@ -25,3 +25,9 @@ export function useApi() {
     return resp.text && JSON.parse(resp.text)
   }, [domain, userName]);
 }
+
+export function useRefreshQueue() {
+  const api = useApi()
+  const {setQueue} = useAppContext()
+  return useCallback(() => api('get', 'q').then(setQueue), [api, setQueue])
+}

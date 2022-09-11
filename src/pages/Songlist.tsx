@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useApi } from '../util/api';
+import { useApi, useRefreshQueue } from '../util/api';
 import { Genre, GENRES, isGenre, songlist, useAppContext } from '../util/Context';
 import { useLastNonNull } from '../util/hoox';
 import NameWidget from './NameWidget';
@@ -21,6 +21,7 @@ const genreToColor = Object.fromEntries(GENRES.map((g,i) => [g, COLORS[i]]))
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
   const api = useApi()
+  const refreshQueue = useRefreshQueue()
   const {queue, setQueue, inclFilters, setInclFilters, setError} = useAppContext()
   const navigate = useNavigate()
   
@@ -29,6 +30,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
   const shownSelectedSong = useLastNonNull(selectedSong)
+
+  useEffect(() => {queue === null && qAccess && refreshQueue()}, [qAccess, queue, refreshQueue])
 
   const requestSong = useCallback((songId: string) => api('post', 'request', {songId})
     .then(q => { setQueue(q); navigate(`/${domain}`) })
@@ -69,7 +72,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       </div>
     </div>
 
-  const selectedSongAlreadyInQ = !!queue.find(s => s.id === shownSelectedSong)
+  const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
   const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && songlist.unincluded.includes(shownSelectedSong), [shownSelectedSong])
 
   return (

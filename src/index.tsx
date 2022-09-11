@@ -1,18 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import ApplicationContext from './util/Context';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import ApplicationContext from "./util/Context";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <ApplicationContext>
-      <BrowserRouter>
+    <BrowserRouter>
+      <ApplicationContext>
         <App />
-      </BrowserRouter>
-    </ApplicationContext>
+      </ApplicationContext>
+    </BrowserRouter>
   </React.StrictMode>
 );

@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef } from "react"
 import FlipMove from 'react-flip-move';
 import { Link, useParams } from "react-router-dom";
-import { sessionToken, useApi } from "../util/api";
+import { sessionToken, useApi, useRefreshQueue } from "../util/api";
 import { useAppContext } from "../util/Context";
 import NameWidget from "./NameWidget";
 
 export default function Queue() {
   const {queue, setQueue, setError} = useAppContext()
   const api = useApi()
+  const refreshQueue = useRefreshQueue()
   const {domain} = useParams()
 
   const refreshInterval = useRef<NodeJS.Timer>()
@@ -35,7 +36,7 @@ export default function Queue() {
 
 
       <FM typeName="ul" appearAnimation="fade">
-        {queue.map((s, i) =>
+        {queue?.map((s, i) =>
           <li className='song-item' key={s.id}>
             {/* <span className="queue-entry-place">{i}</span> */}
             <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0].match(/[^_]*/)?.[0] || 'Anonymous'})</em></p>
