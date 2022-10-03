@@ -22,6 +22,10 @@ body {
   }
 }
 
+h2.align-center {
+  text-align: center;
+}
+
 .bg-video {
   position: fixed;
   z-index: -1;
@@ -290,31 +294,38 @@ ul {
   list-style: none;
   padding: $pddng;
 
+  --song-item-bg: rgba(10, 10, 10, 0.8);
+
   + .song-item {
     margin-top: 4px;
   }
 
+  &.clickable {
+    cursor: pointer;
+    * {
+      transition: all .2s ease;
+    }
+
+    &:hover {
+      --song-item-bg: rgb(43, 43, 43);
+    }
+    &.selected {
+      --song-item-bg: white;
+      .song-name {
+        color: black;
+      }
+      &:hover {
+        --song-item-bg: rgb(222, 222, 222);
+      }
+    }
+  }
+
   .song-name {
-    background-color: rgb(23, 23, 23);
+    background-color: var(--song-item-bg);
     border-radius: 6px;
     padding: $pddng;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
-
-    &.clickable {
-      cursor: pointer;
-      transition: all .2s ease;
-      &:hover {
-        background-color: rgb(43, 43, 43);
-      }
-      &.selected {
-        background-color: white;
-        color: black;
-        &:hover {
-          background-color: rgb(222, 222, 222);
-        }
-      }
-    }
   }
 
   span {
@@ -330,6 +341,66 @@ ul {
   color: black;
   white-space: nowrap;
   font-size: 12px;
+}
+
+.view-toggle {
+  border: none;
+  margin: 0;
+  padding: 4px 8px;
+  margin-top: 12px;
+}
+
+ul.tile-view {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .song-item {
+    width: 300px;
+    display: inline-block;
+    padding: 10px 10px;
+    background-color: var(--song-item-bg);
+    border-radius: 6px;
+    margin-right: 14px;
+
+    .img-wrapper {
+      background-image: url(NoCoverDeluxe.jpg);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+      border-radius: 6px;
+      position: relative;
+      height: 250px;
+      margin-bottom: 6px;
+    }
+
+    img {
+      transition: opacity 0.2s ease;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      object-fit: cover;
+
+      &.invisible {
+        opacity: 0;
+      }
+    }
+
+    @media screen and (max-width: 1000px) {
+      width: 250px;
+      .img-wrapper { height: 200px; }
+    }
+    @media screen and (max-width: 800px) {
+      width: 40vw;
+      .img-wrapper { height: 30vw; }
+    }
+    @media screen and (max-width: 450px) {
+      width: 100%;
+    }
+    .song-name {
+      background: none;
+    }
+  }
 }
 
 .votes-count {

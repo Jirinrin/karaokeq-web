@@ -22,7 +22,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
   const api = useApi()
   const refreshQueue = useRefreshQueue()
-  const {queue, setQueue, inclFilters, setInclFilters, setError} = useAppContext()
+  const {queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode} = useAppContext()
   const navigate = useNavigate()
   
   const [srch, setSrch] = useState('')
@@ -42,7 +42,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     img.classList.add('invisible')
     clearTimeout(coverTimeout.current)
     if (selectedSong)
-      coverTimeout.current = setTimeout(() => img.src = `https://pub-d909a0daa125478d9db850d4da553bc4.r2.dev/${prepForCDNQuery(selectedSong)}`, 500)
+      coverTimeout.current = setTimeout(() => img.src = prepForCDNQuery(selectedSong), 500)
   }, [selectedSong])
 
   useEffect(() => {queue === null && qAccess && refreshQueue()}, [qAccess, queue, refreshQueue])
@@ -89,30 +89,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
   const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && songlist.unincluded.includes(shownSelectedSong), [shownSelectedSong])
 
-  // todo: toggle to switch to a display in thumbnail tiles :D
-
   return (
     <div className='Songlist'>
-      {qAccess && (
-        <div className='sticky-section'>
-          <div className="input-block-flekz">
-            {searchBox}
-            <NameWidget />
-          </div>
-          <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
-          
-          <div className={`selected-song modal-dialog-thing ${selectedSong ? '' : 'invisible'}`}>
-            <img className="selected-cover invisible" loading="lazy" alt="" ref={coverRef} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
-            <div className="pane">
-              <p>Selected song</p>
-              <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
-              <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
-                {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       <h1>Songlist</h1>
       {!qAccess &&
         <div className='sticky-section anon'>
@@ -150,20 +128,53 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         </h4>
       </div>
 
-      <h2>Song results ({displaySongs.length})</h2>
-      <ul>
+      <button className='view-toggle' onClick={() => setViewMode(viewMode === 'list' ? 'tile' : 'list')}>VIEW: {viewMode.toUpperCase()}</button>
+
+      <h2 className={viewMode === 'tile' ? 'align-center' : ''}>Song results ({displaySongs.length})</h2>
+
+      <ul className={`${viewMode}-view`}>
         {displaySongs.map(([s, g], i) =>
-          <li className='song-item' key={`${i}-s`}>
-            <span
-              className={`song-name ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
-              onClick={() => qAccess && setSelectedSong(selectedSong === s ? null : s)}
-            >
+          <li
+            className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
+            key={`${i}-s`}
+            onClick={() => qAccess && setSelectedSong(selectedSong === s ? null : s)}
+          >
+            {viewMode === 'tile' &&
+              <div className="img-wrapper">
+                <img className="invisible" loading="lazy" alt="" src={prepForCDNQuery(s)} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
+              </div>
+            }
+            <div>
+
+            <span className='song-name'>
               {s.replace(' : ', ' - ')}
             </span>
             <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
+            </div>
           </li>
         )}
       </ul>
+
+      {qAccess && (
+        <div className='sticky-section'>
+          <div className="input-block-flekz">
+            {searchBox}
+            <NameWidget />
+          </div>
+          <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
+          
+          <div className={`selected-song modal-dialog-thing ${selectedSong ? '' : 'invisible'}`}>
+            <img className="selected-cover invisible" loading="lazy" alt="" ref={coverRef} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
+            <div className="pane">
+              <p>Selected song</p>
+              <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
+              <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
+                {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* todo: couple floating btns: [scroll to top], [select random song & scroll to it] */}
     </div>
@@ -171,7 +182,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 }
 
 function prepForCDNQuery(name: string) {
-  return encodeURIComponent(esc(name)).replace(/%(24|26|2B|2C|3B|3D)/g, '%25$1')
+  return 'https://pub-d909a0daa125478d9db850d4da553bc4.r2.dev/' + encodeURIComponent(esc(name)).replace(/%(24|26|2B|2C|3B|3D)/g, '%25$1')
 }
 
 function esc(name: string) {

@@ -8,6 +8,8 @@ export type Genre = keyof typeof songlist
 export const GENRES = Object.keys(songlist) as Genre[]
 export const isGenre = (g: Genre) => g !== 'unincluded';
 
+type ViewMode = 'list'|'tile'
+
 interface AppContext {
   userName: string
   setUserName: (to: string) => void
@@ -16,9 +18,11 @@ interface AppContext {
   inclFilters: Record<Genre, boolean>
   setInclFilters: (to: Record<Genre, boolean>) => void
   setError: (err: string) => void
+  viewMode: ViewMode
+  setViewMode: (to: ViewMode) => void
 }
 
-const Ctx = createContext<AppContext>({userName: '', setUserName: () => {}, queue: [], setQueue: () => {}, inclFilters: {} as any, setInclFilters: () => {}, setError: () => {}})
+const Ctx = createContext<AppContext>({} as AppContext)
 
 export function useAppContext() {
   return useContext(Ctx)
@@ -29,6 +33,8 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   const [queue, setQueue] = useState<Q|null>(null)
   const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
 
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+
   const [error, setError] = useState<string|null>(null)
   const shownError = useLastNonNull(error)
 
@@ -37,7 +43,7 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   }, [userName])
 
   return (
-    <Ctx.Provider value={{userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setError}}>
+    <Ctx.Provider value={{userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode}}>
       {children}
       <ErrorModal visible={!!error} txt={shownError ?? ''} hide={() => setError(null)} />
     </Ctx.Provider>
