@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DebounceInput } from 'react-debounce-input';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApi, useRefreshQueue } from '../util/api';
@@ -28,8 +28,22 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const [srch, setSrch] = useState('')
   const [showUnincluded, setShowUnincluded] = useState(false)
 
+  const [displaySongs, setDisplaySongs] = useState<[string, Genre][]>([])
+
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
   const shownSelectedSong = useLastNonNull(selectedSong)
+
+  const coverRef = useRef<HTMLImageElement>(null)
+  const coverTimeout = useRef<NodeJS.Timeout>()
+
+  useEffect(() => {
+    const img = coverRef.current
+    if (!img) return
+    img.classList.add('invisible')
+    clearTimeout(coverTimeout.current)
+    if (selectedSong)
+      coverTimeout.current = setTimeout(() => img.src = `https://pub-d909a0daa125478d9db850d4da553bc4.r2.dev/${prepForCDNQuery(selectedSong)}`, 500)
+  }, [selectedSong])
 
   useEffect(() => {queue === null && qAccess && refreshQueue()}, [qAccess, queue, refreshQueue])
 
@@ -53,14 +67,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       return GENRES
   }, [inclFilters, showUnincluded]);
 
-  const [displaySongs, setDisplaySongs] = useState<[string, Genre][]>([])
-
   useEffect(() => {
     const songs = [...genresToShow.flatMap(g => songlist[g].map((s): [string, Genre] => [s, g]))].sort((a,b) => a[0].localeCompare(b[0]))
     if (!srch) setDisplaySongs(songs);
 
     const terms = srch.toLowerCase().split(' ').map(t => t.trim())
-    setDisplaySongs(songs.filter(([s]) => {const sl = s.toLowerCase(); return terms.every(t => sl.includes(t))}))
+    const newDisplaySongs = songs.filter(([s]) => {const sl = s.toLowerCase(); return terms.every(t => sl.includes(t))})
+    setDisplaySongs(newDisplaySongs)
+    // setDataProvider(d => d.cloneWithRows(newDisplaySongs))
   }, [genresToShow, srch]);
 
   const searchBox = 
@@ -75,6 +89,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
   const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && songlist.unincluded.includes(shownSelectedSong), [shownSelectedSong])
 
+  // todo: toggle to switch to a display in thumbnail tiles :D
+
   return (
     <div className='Songlist'>
       {qAccess && (
@@ -85,12 +101,15 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           </div>
           <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
           
-          <div className={`selected-song pane modal-dialog-thing ${selectedSong ? '' : 'invisible'}`}>
-            <p>Selected song</p>
-            <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
-            <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
-              {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
-            </button>
+          <div className={`selected-song modal-dialog-thing ${selectedSong ? '' : 'invisible'}`}>
+            <img className="selected-cover invisible" loading="lazy" alt="" ref={coverRef} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
+            <div className="pane">
+              <p>Selected song</p>
+              <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
+              <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
+                {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -145,6 +164,27 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           </li>
         )}
       </ul>
+
+      {/* todo: couple floating btns: [scroll to top], [select random song & scroll to it] */}
     </div>
   )
+}
+
+function prepForCDNQuery(name: string) {
+  return encodeURIComponent(esc(name)).replace(/%(24|26|2B|2C|3B|3D)/g, '%25$1')
+}
+
+function esc(name: string) {
+  return name
+    .replace(/:/g, '：')
+    .replace(/\?/g, '？')
+    .replace(/"/g, '”')
+    .replace(/</g, '＜')
+    .replace(/>/g, '＞')
+    .replace(/\|/g, '｜')
+    .replace(/\*/g, '＊')
+    .trim()
+    .replace(/\.$/, '∙')
+    .replace(/\\/g, '＼')
+    .replace(/\//g, '／')
 }
