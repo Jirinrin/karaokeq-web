@@ -22,6 +22,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
   const api = useApi()
   const refreshQueue = useRefreshQueue()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode} = useAppContext()
   const navigate = useNavigate()
   
@@ -128,7 +129,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         </h4>
       </div>
 
-      <button className='view-toggle' onClick={() => setViewMode(viewMode === 'list' ? 'tile' : 'list')}>VIEW: {viewMode.toUpperCase()}</button>
+      {/* <button className='view-toggle' onClick={() => setViewMode(viewMode === 'list' ? 'tile' : 'list')}>VIEW: {viewMode.toUpperCase()}</button> */}
 
       <h2 className={viewMode === 'tile' ? 'align-center' : ''}>Song results ({displaySongs.length})</h2>
 
