@@ -33,7 +33,7 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   const [queue, setQueue] = useState<Q|null>(null)
   const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
 
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tile') ? 'tile' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
 
   const [error, setError] = useState<string|null>(null)
   const shownError = useLastNonNull(error)

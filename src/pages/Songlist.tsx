@@ -92,6 +92,27 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   return (
     <div className='Songlist'>
+      {qAccess && (
+        <div className='sticky-section'>
+          <div className="input-block-flekz">
+            {searchBox}
+            <NameWidget />
+          </div>
+          <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
+          
+          <div className={`selected-song modal-dialog-thing ${selectedSong ? '' : 'invisible'}`}>
+            <img className="selected-cover invisible" loading="lazy" alt="" ref={coverRef} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
+            <div className="pane">
+              <p>Selected song</p>
+              <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
+              <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
+                {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1>Songlist</h1>
       {!qAccess &&
         <div className='sticky-section anon'>
@@ -155,27 +176,6 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           </li>
         )}
       </ul>
-
-      {qAccess && (
-        <div className='sticky-section'>
-          <div className="input-block-flekz">
-            {searchBox}
-            <NameWidget />
-          </div>
-          <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
-          
-          <div className={`selected-song modal-dialog-thing ${selectedSong ? '' : 'invisible'}`}>
-            <img className="selected-cover invisible" loading="lazy" alt="" ref={coverRef} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
-            <div className="pane">
-              <p>Selected song</p>
-              <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
-              <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
-                {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* todo: couple floating btns: [scroll to top], [select random song & scroll to it] */}
     </div>
