@@ -1,9 +1,9 @@
-import req from 'superagent'
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
+import req from 'superagent';
 import { useAppContext } from "./Context";
 
-export let API_URL = "https://karaokeq.jirinrin.workers.dev";
+export let API_URL = "https://karaokeq.q42.workers.dev";
 // API_URL = "http://localhost:8787";
 
 export const sessionToken = localStorage.getItem('session')
@@ -11,19 +11,22 @@ export const sessionToken = localStorage.getItem('session')
 
 export function useApi() {
   const { domain } = useParams()
-  const { userName } = useAppContext()
+  const { userName, adminToken } = useAppContext()
 
   return useCallback(async (method: 'get'|'post'|'put'|'delete', path: string, body?: any) => {
     let r = req[method](`${API_URL}/${domain}/${path}`)
       .set('Q-Session', sessionToken)
       .set('Q-User-Name', userName)
 
+    if (adminToken)
+      r = r.set('Q-Admin-Token', adminToken)
+
     if (body)
       r = r.send(body)
 
     const resp = await r
     return resp.text && JSON.parse(resp.text)
-  }, [domain, userName]);
+  }, [domain, userName, adminToken]);
 }
 
 export function useRefreshQueue() {

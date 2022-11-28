@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {Q} from '../util/types'
-import sl from '../songlist.json'
+import sl from '../songlist.json';
+import { Q } from '../util/types';
 import { useLastNonNull } from "./hoox";
 
 export const songlist = sl
@@ -20,6 +20,8 @@ interface AppContext {
   setError: (err: string) => void
   viewMode: ViewMode
   setViewMode: (to: ViewMode) => void
+  adminToken: string|null
+  setAdminToken: (to: string|null) => void
 }
 
 const Ctx = createContext<AppContext>({} as AppContext)
@@ -31,19 +33,20 @@ export function useAppContext() {
 export default function ApplicationContext({children}: {children: React.ReactNode}) {
   const [userName, setUserName] = useState(localStorage.getItem('username') ?? '')
   const [queue, setQueue] = useState<Q|null>(null)
+  // todo: allow some init filters set through the querystring or sth (e.g. west=true)
   const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
+  const [adminToken, setAdminToken] = useState<string|null>(localStorage.getItem('admintoken') || null)
 
   const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tile') ? 'tile' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
 
   const [error, setError] = useState<string|null>(null)
   const shownError = useLastNonNull(error)
 
-  useEffect(() => {
-    localStorage.setItem('username', userName)
-  }, [userName])
+  useEffect(() => { localStorage.setItem('username', userName) }, [userName])
+  useEffect(() => { adminToken && localStorage.setItem('admintoken', adminToken) }, [adminToken])
 
   return (
-    <Ctx.Provider value={{userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode}}>
+    <Ctx.Provider value={{userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, adminToken, setAdminToken}}>
       {children}
       <ErrorModal visible={!!error} txt={shownError ?? ''} hide={() => setError(null)} />
     </Ctx.Provider>

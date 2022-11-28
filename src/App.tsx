@@ -2,6 +2,7 @@ import "./App.scss";
 import SongList from "./pages/Songlist";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Queue from "./pages/Queue";
+import { Admin } from "./pages/Admin";
 
 /*
 Structure: (karaoke.jirinrin.com)
@@ -30,6 +31,7 @@ function App() {
         <Route path="/:domain">
           <Route path="" element={<Queue />} />
           <Route path="songlist" element={<SongList qAccess />} />
+          <Route path="admin" element={<Admin />} />
         </Route>
       </Routes>
     </div>
