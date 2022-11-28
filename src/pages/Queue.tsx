@@ -72,7 +72,7 @@ export default function Queue() {
       <div className="admin-buttons">
         <button onClick={() => api('post', 'reset').then(setQueue)}>Reset Q</button>
         <button
-          onClick={async () => {const mins = prompt('How many minutes?'); mins && await api('put', 'req-rate-limit', {minutes: parseInt(mins)}) && setTimeout(refreshRateLimit, 30000)}}
+          onClick={async () => {const mins = prompt('How many minutes?'); mins && await api('put', 'req-rate-limit', {minutes: parseInt(mins) && setRatelimit(parseInt(mins))}) && setTimeout(refreshRateLimit, 30000)}}
         >
           Set rate limit (current: {ratelimit} mins)
         </button>
