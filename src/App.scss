@@ -164,6 +164,7 @@ button, .link-btn {
     max-width: 300px;
     text-align: center;
     transform: translate(-50%, -50%);
+    z-index: 1;
     &.invisible {
       transform: translate(calc(-50% + 300px), calc(-50% - 200px)) rotate(360deg);
     }
@@ -179,10 +180,11 @@ button, .link-btn {
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.282);
   backdrop-filter: blur(2px);
-  pointer-events: none;
   transition: opacity .5s ease;
+  z-index: 1;
   top: 0;
   &.invisible {
+    pointer-events: none;
     opacity: 0;
   }
 }
