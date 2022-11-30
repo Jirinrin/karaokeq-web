@@ -60,13 +60,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   }
 
   const genresToShow = useMemo(() => {
-    if (Object.values(inclFilters).includes(true))
-      return GENRES.filter(g => inclFilters[g])
-    else if (!showUnincluded)
-      return GENRES.filter(isGenre)
+    const all = showUnincluded ? GENRES : GENRES.filter(isGenre)
+    if (srch)
+      return all
+    else if (Object.values(inclFilters).includes(true))
+      return all.filter(g => inclFilters[g])
     else
-      return GENRES
-  }, [inclFilters, showUnincluded]);
+      return all
+  }, [inclFilters, showUnincluded, srch]);
 
   useEffect(() => {
     const songs = [...genresToShow.flatMap(g => songlist[g].map((s): [string, Genre] => [s, g]))].sort((a,b) => a[0].localeCompare(b[0]))
@@ -119,7 +120,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           {searchBox}
         </div>
       }
-      <div>
+      <div className={`filter-section disablable ${srch ? 'disabled' : ''}`}>
         <h3>Category filters</h3>
         {Object.entries(inclFilters).map(([g, checked]) =>
           <span key={g} style={{backgroundColor: genreToColor[g]}} className='category-filter'>
@@ -137,7 +138,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         </span>
       </div>
 
-      <div className='show-unincluded'>
+      <div className={`show-unincluded disablable ${Object.values(inclFilters).includes(true) && !srch ? 'disabled' : ''}`}>
         <label htmlFor="show-unincluded-songs">Show unincluded songs:</label>
         <input id="show-unincluded-songs" type="checkbox" checked={showUnincluded} onChange={e => setShowUnincluded(!showUnincluded)} />
       </div>

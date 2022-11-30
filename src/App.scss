@@ -262,6 +262,15 @@ button, .link-btn {
   }
 }
 
+.disablable {
+  transition: opacity 0.5s;
+  &.disabled {
+    opacity: 0.2;
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
 em {
   opacity: .7;
   font-weight: 100;
