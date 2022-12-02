@@ -13,7 +13,7 @@ export function useApi() {
   const { domain } = useParams()
   const { userName, adminToken } = useAppContext()
 
-  return useCallback(async (method: 'get'|'post'|'put'|'delete', path: string, body?: any) => {
+  return useCallback(async (method: 'get'|'post'|'put'|'patch'|'delete', path: string, body?: any) => {
     let r = req[method](`${API_URL}/${domain}/${path}`)
       .set('Q-Session', sessionToken)
       .set('Q-User-Name', userName)

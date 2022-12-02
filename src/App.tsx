@@ -1,8 +1,8 @@
-import "./App.scss";
-import SongList from "./pages/Songlist";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Queue from "./pages/Queue";
+import "./App.scss";
 import { Admin } from "./pages/Admin";
+import Queue from "./pages/Queue";
+import SongList from "./pages/Songlist";
 
 /*
 Structure: (karaoke.jirinrin.com)

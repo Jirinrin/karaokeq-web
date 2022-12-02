@@ -3,6 +3,7 @@ import FlipMove from 'react-flip-move';
 import { Link, useParams } from "react-router-dom";
 import { sessionToken, useApi, useRefreshQueue } from "../util/api";
 import { useAppContext } from "../util/Context";
+import { Config } from "../util/types";
 import NameWidget from "./NameWidget";
 
 export default function Queue() {
@@ -10,7 +11,7 @@ export default function Queue() {
   const api = useApi()
   const refreshQueue = useRefreshQueue()
   const {domain} = useParams()
-  const [ratelimit, setRatelimit] = useState(0)
+  const [config, setConfig] = useState<Config|null>(null)
   const isAdmin = useMemo(() => !!adminToken, [adminToken])
 
   const refreshInterval = useRef<NodeJS.Timer>()
@@ -24,8 +25,13 @@ export default function Queue() {
     return () => clearInterval(refreshInterval.current)
   }, [refreshQueue])
 
-  const refreshRateLimit = useCallback(() => api('get', 'req-rate-limit').then(r => setRatelimit(r)), [api])
-  useEffect(() => { isAdmin && refreshRateLimit() }, [isAdmin, refreshRateLimit])
+  const refreshConfig = useCallback(() => api('get', 'config').then(c => setConfig(c)), [api])
+  const setConfigPartial = useCallback(async (c: Partial<Config>) => {
+    await api('patch', 'config', c)
+    setConfig(cc => cc && ({...cc, ...c}))
+    setTimeout(refreshConfig, 30000)
+  }, [api, refreshConfig])
+  useEffect(() => { isAdmin && refreshConfig() }, [isAdmin, refreshConfig])
 
   // annoying issue that disallows me from using this for now: https://github.com/joshwcomeau/react-flip-move/issues/273
   const FM = FlipMove as any
@@ -71,11 +77,16 @@ export default function Queue() {
     return (
       <div className="admin-buttons">
         <button onClick={() => api('post', 'reset').then(setQueue)}>Reset Q</button>
-        <button
-          onClick={async () => {const mins = prompt('How many minutes?'); mins && await api('put', 'req-rate-limit', {minutes: parseInt(mins) && setRatelimit(parseInt(mins))}) && setTimeout(refreshRateLimit, 30000)}}
-        >
-          Set rate limit (current: {ratelimit} mins)
-        </button>
+        {config && 
+          <span className="fade-in-appear">
+            <button onClick={() => {const mins = prompt('How many minutes?'); mins && setConfigPartial({requestRateLimitMins: Number(mins)})}}>
+              Set rate limit (current: {config.requestRateLimitMins} mins)
+            </button>
+            <button onClick={() => {const v = prompt('How many votes?'); v && setConfigPartial({waitingVoteBonus: Number(v)})}}>
+              Set waiting vote bonus (current: {config.waitingVoteBonus})
+            </button>
+          </span>
+        }
         {/* <p>todo: change admin key</p> */}
         {/* <p>todo: DELETE ENTIRE QUEUE</p> */}
       </div>

@@ -451,3 +451,11 @@ ul.tile-view {
   justify-content: space-between;
   align-items: flex-start;
 }
+
+@keyframes fade-in-appear {
+  from { opacity: 0 }
+}
+
+.fade-in-appear {
+  animation: fade-in-appear 1s linear;
+}
