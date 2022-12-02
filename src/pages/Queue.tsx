@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { sessionToken, useApi, useRefreshQueue } from "../util/api";
 import { useAppContext } from "../util/Context";
 import { Config } from "../util/types";
+import { formatSongId } from "../util/utils";
 import NameWidget from "./NameWidget";
 
 export default function Queue() {
@@ -52,7 +53,7 @@ export default function Queue() {
             <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0]?.match(/[^_]*/)?.[0] || 'anonymous'})</em></p>
             <div className="q-item-flex">
               <span className="song-name">
-                {s.id.replace(' : ', ' - ')}
+                {formatSongId(s.id)}
                 {isAdmin && <>
                 <button onClick={() => {const v = prompt('How many votes?'); v && api('post', 'setvotes', {songId: s.id, votes: parseInt(v)}).then(setQueue)}}>v</button>
                 <button onClick={() => {const はい = window.confirm('Really remove this song?'); はい && api('post', 'remove', {songId: s.id}).then(setQueue)}}>r</button>

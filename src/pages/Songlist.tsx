@@ -170,7 +170,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             <div>
 
             <span className='song-name'>
-              {s.replace(' : ', ' - ')}
+              {formatSongId(s)}
             </span>
             <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
             </div>
