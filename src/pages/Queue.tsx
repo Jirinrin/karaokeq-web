@@ -3,7 +3,7 @@ import FlipMove from 'react-flip-move';
 import { Link, useParams } from "react-router-dom";
 import { sessionToken, useApi, useRefreshQueue } from "../util/api";
 import { useAppContext } from "../util/Context";
-import { Config } from "../util/types";
+import { Config, QItem } from "../util/types";
 import { formatSongId } from "../util/utils";
 import NameWidget from "./NameWidget";
 
@@ -61,10 +61,10 @@ export default function Queue() {
               </span>
               <button className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`} disabled={i < 2 || (!isAdmin && !!s.votes.find(v => v.includes(sessionToken))) } onClick={() => vote(s.id)}>
                 {i < 2
-                  ? `${votesTxt(s.votes.length)} ■`
+                  ? `${votesTxt(s, isAdmin)} ■`
                   : s.votes.find(v => v.includes(sessionToken))
-                    ? `${votesTxt(s.votes.length)} ❤`
-                    : `Vote (${s.votes.length})`
+                    ? `${votesTxt(s, isAdmin)} ❤`
+                    : `Vote (${votesNo(s, isAdmin)})`
                 }
               </button>
             </div>
@@ -95,4 +95,5 @@ export default function Queue() {
   }
 }
 
-function votesTxt(count: number) { return `${count} vote${count===1 ? '' : 's'}` }
+function votesNo(s: QItem, isAdmin: boolean) { return `${s.votes.length}${isAdmin ? `+${Math.floor(s.waitingVotes*10)/10}` : ''}` }
+function votesTxt(s: QItem, isAdmin: boolean) { return `${votesNo(s, isAdmin)} vote${isAdmin || s.votes.length !== 1 ? 's' : ''}` }
