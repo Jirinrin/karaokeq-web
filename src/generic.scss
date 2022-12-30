@@ -1,0 +1,39 @@
+
+
+body {
+  background-color: rgb(44, 44, 44);
+  overflow-x: hidden;
+  margin: 0;
+  padding-top: 10px;
+}
+
+* {
+  font-family: 'Noto Sans', sans-serif;
+  color: rgb(238, 238, 238);
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  transform: translateX(-50px);
+
+  &-thumb {
+    background-color: rgba(255, 255, 255, 0.144);
+    width: 3px;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.226);
+    }
+    &:active {
+      background-color: rgba(255, 255, 255, 0.377);
+    }
+  }
+  &-corner,
+  &-button,
+  &-track {
+    display: none;
+  }
+}
+
+ul {
+  padding-left: 0;
+}

@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Collapse } from 'react-collapse';
 import { DebounceInput } from 'react-debounce-input';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { DataProvider, LayoutProvider, RecyclerListView } from 'recyclerlistview/web';
+import { SongName } from '../components/SongName';
+import { GENRES, Genre, isGenre, songlist, useAppContext } from '../util/Context';
 import { useApi, useRefreshQueue } from '../util/api';
-import { Genre, GENRES, isGenre, songlist, useAppContext } from '../util/Context';
-import { useLastNonNull } from '../util/hoox';
-import { formatSongId } from '../util/utils';
+import { useLastNonNull, useScrollPosition } from '../util/hoox';
 import NameWidget from './NameWidget';
 
+type SongRow = [id: string, g: Genre]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SPOTIFYURL = `
@@ -30,13 +33,16 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const [srch, setSrch] = useState('')
   const [showUnincluded, setShowUnincluded] = useState(false)
 
-  const [displaySongs, setDisplaySongs] = useState<[string, Genre][]>([])
+  const [displaySongs, setDisplaySongs] = useState<SongRow[]>([])
+  const [dataProvider, setDataProvider] = useState(new DataProvider((r1: SongRow, r2: SongRow) => r1[0] !== r2[0] || r1[1] !== r2[1]))
 
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
   const shownSelectedSong = useLastNonNull(selectedSong)
 
   const coverRef = useRef<HTMLImageElement>(null)
   const coverTimeout = useRef<NodeJS.Timeout>()
+
+  const [addSongNoticeOpened, setAddSongNoticeOpened] = useState(true)
 
   useEffect(() => {
     const img = coverRef.current
@@ -71,13 +77,13 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   }, [inclFilters, showUnincluded, srch]);
 
   useEffect(() => {
-    const songs = [...genresToShow.flatMap(g => songlist[g].map((s): [string, Genre] => [s, g]))].sort((a,b) => a[0].localeCompare(b[0]))
+    const songs = [...genresToShow.flatMap(g => songlist[g].map((s): SongRow => [s, g]))].sort((a,b) => a[0].localeCompare(b[0]))
     if (!srch) setDisplaySongs(songs);
 
     const terms = srch.toLowerCase().split(' ').map(t => t.trim())
     const newDisplaySongs = songs.filter(([s]) => {const sl = s.toLowerCase(); return terms.every(t => sl.includes(t))})
     setDisplaySongs(newDisplaySongs)
-    // setDataProvider(d => d.cloneWithRows(newDisplaySongs))
+    setDataProvider(d => d.cloneWithRows(newDisplaySongs))
   }, [genresToShow, srch]);
 
   const searchBox = 
@@ -91,6 +97,25 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
   const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && songlist.unincluded.includes(shownSelectedSong), [shownSelectedSong])
+
+  const [spaceAboveResults, setSpaceAboveResults] = useState(0)
+  const [songlistScrollEnabled, setSonglistScrollEnabled] = useState(false)
+  const [songlistScrolled, setSonglistScrolled] = useState(false)
+
+  useScrollPosition(({ prevPos, currPos }) => {
+    const pct = currPos / (document.body.scrollHeight - window.innerHeight)
+    setSpaceAboveResults(pct * 104)
+
+    if (pct >= 1)
+      setSonglistScrollEnabled(true)
+    else
+      setSonglistScrollEnabled(false)
+  }, [], undefined, true)
+
+  // const songsViewRef = useRef<HTMLDivElement>(null)
+  // const scrollToTop = () => {
+  //   songsViewRef.current?.scrollToTop()
+  // }
 
   return (
     <div className='Songlist'>
@@ -110,6 +135,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
               <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
                 {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
               </button>
+              <button className='link-btn close-btn' onClick={() => setSelectedSong(null)}></button>
             </div>
           </div>
         </div>
@@ -145,18 +171,46 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       </div>
 
 
-      <div className='notice'>
-        <h4>
-          Can't find a song? Go ahead and add it to <a href={SPOTIFYURL} target="_blank" rel="noreferrer">this Spotify playlist</a>, and I'll go ahead and try to get it into the game!<br/>
-          Or if you got ultrastar files for me: even better! You can drop those <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">in here</a>!
-        </h4>
+      <Collapse isOpened={addSongNoticeOpened && !srch}>
+        <div className='notice'>
+          <h4>
+            Can't find a song? Go ahead and add it to <a href={SPOTIFYURL} target="_blank" rel="noreferrer">this Spotify playlist</a>, and I'll go ahead and try to get it into the game!<br/>
+            Or if you got ultrastar files for me: even better! You can drop those <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">in here</a>!
+            <button onClick={() => setAddSongNoticeOpened(false)}>Dismiss</button>
+          </h4>
+        </div>
+      </Collapse>
+
+      {/* todo: also make tile view work with recyclerview :) */}
+      {/* <button className='view-toggle' onClick={() => setViewMode(viewMode === 'list' ? 'tile' : 'list')}>VIEW: {viewMode.toUpperCase()}</button> */}
+      <div style={{height: spaceAboveResults}}></div>
+      <h2 className={`songs-title ${songlistScrolled ? 'with-border' : ''} ${viewMode === 'tile' ? 'align-center' : ''}`}>
+        Songs <span>{displaySongs.length}</span>
+      </h2>
+      <div id="songs-wrapper">
+        {displaySongs.length > 0 &&
+          <RecyclerListView
+            // todo: get ref to implement scrollToTop
+            onScroll={(e, _x, y) => {setSonglistScrolled(y === 0 ? false : true)}}
+            layoutProvider={new LayoutProvider(() => 'a', (_, dim) => {dim.height = 33; dim.width = 800})}
+            dataProvider={dataProvider}
+            scrollViewProps={{id: 'songs-scroll-view'}}
+            style={{width: '100%', height: `calc(100vh - ${160}px)`, pointerEvents: songlistScrollEnabled ? 'all' : 'none'}}
+            rowRenderer={(_, [s,g], i) => (
+              <li
+                className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
+                key={`${i}-s`}
+                onClick={() => qAccess && setSelectedSong(selectedSong === s ? null : s)}
+              >
+                <SongName songId={s} />
+                <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
+              </li>
+            )}
+          />
+        }
       </div>
 
-      {/* <button className='view-toggle' onClick={() => setViewMode(viewMode === 'list' ? 'tile' : 'list')}>VIEW: {viewMode.toUpperCase()}</button> */}
-
-      <h2 className={viewMode === 'tile' ? 'align-center' : ''}>Song results ({displaySongs.length})</h2>
-
-      <ul className={`${viewMode}-view`}>
+      {/* <ul className={`${viewMode}-view`}>
         {displaySongs.map(([s, g], i) =>
           <li
             className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
@@ -177,7 +231,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             </div>
           </li>
         )}
-      </ul>
+      </ul> */}
 
       {/* todo: couple floating btns: [scroll to top], [select random song & scroll to it] */}
     </div>
