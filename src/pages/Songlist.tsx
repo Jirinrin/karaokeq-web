@@ -112,7 +112,10 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       setSonglistScrollEnabled(false)
   }, [], undefined, true)
 
-  // const songsViewRef = useRef<HTMLDivElement>(null)
+  const songsWrapperRef = useRef<HTMLDivElement>(null)
+  const songsViewRef = useRef<HTMLDivElement|null>(null)
+
+
   // const scrollToTop = () => {
   //   songsViewRef.current?.scrollToTop()
   // }
@@ -187,7 +190,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       <h2 className={`songs-title ${songlistScrolled ? 'with-border' : ''} ${viewMode === 'tile' ? 'align-center' : ''}`}>
         Songs <span>{displaySongs.length}</span>
       </h2>
-      <div id="songs-wrapper">
+      <div ref={songsWrapperRef}>
         {displaySongs.length > 0 &&
           <RecyclerListView
             // todo: get ref to implement scrollToTop
@@ -195,6 +198,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             layoutProvider={new LayoutProvider(() => 'a', (_, dim) => {dim.height = 33; dim.width = 800})}
             dataProvider={dataProvider}
             scrollViewProps={{id: 'songs-scroll-view'}}
+            // todo
             style={{width: '100%', height: `calc(100vh - ${160}px)`, pointerEvents: songlistScrollEnabled ? 'all' : 'none'}}
             rowRenderer={(_, [s,g], i) => (
               <li
