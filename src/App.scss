@@ -454,8 +454,8 @@ h2.songs-title {
 
     @keyframes scrll {
       0% { transform: translateX(0); left: 9px; }
-      30% { transform: translateX(0); left: 9px; animation-timing-function: ease; }
-      65% { transform: translateX(-100%); left: calc(100% - 18px + 9px); animation-timing-function: ease-out; }
+      40% { transform: translateX(0); left: 9px; animation-timing-function: ease; }
+      80% { transform: translateX(-100%); left: calc(100% - 18px + 9px); animation-timing-function: ease-in; }
       100% { transform: translateX(0); left: 9px; }
     }
 

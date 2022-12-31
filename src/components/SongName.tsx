@@ -13,7 +13,7 @@ export const SongName = ({ songId }: { songId: string }) => {
   }, [songId])
   
   // const animationDuration = diffWithParent ? diffWithParent*0.14 : 5
-  const animationDuration = 9
+  const animationDuration = 8
 
   return (
     <span className={`song-name ${diffWithParent > 0 ? 'scrolling' : ''}`}>
