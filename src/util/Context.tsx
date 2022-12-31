@@ -8,7 +8,7 @@ export type Genre = keyof typeof songlist
 export const GENRES = Object.keys(songlist) as Genre[]
 export const isGenre = (g: Genre) => g !== 'unincluded';
 
-type ViewMode = 'list'|'tile'
+type ViewMode = 'list'|'tiled'
 
 interface AppContext {
   userName: string
@@ -22,6 +22,9 @@ interface AppContext {
   setViewMode: (to: ViewMode) => void
   adminToken: string|null
   setAdminToken: (to: string|null) => void
+  addSongNoticeOpened: boolean
+  setAddSongNoticeOpened: (to: boolean) => void
+
 }
 
 const Ctx = createContext<AppContext>({} as AppContext)
@@ -37,16 +40,18 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   const [inclFilters, setInclFilters] = useState(GENRES.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {} as Record<Genre, boolean>))
   const [adminToken, setAdminToken] = useState<string|null>(localStorage.getItem('admintoken') || null)
 
-  const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tile') ? 'tile' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
+  const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tiled') ? 'tiled' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
 
   const [error, setError] = useState<string|null>(null)
   const shownError = useLastNonNull(error)
+
+  const [addSongNoticeOpened, setAddSongNoticeOpened] = useState(true)
 
   useEffect(() => { localStorage.setItem('username', userName) }, [userName])
   useEffect(() => { adminToken && localStorage.setItem('admintoken', adminToken) }, [adminToken])
 
   return (
-    <Ctx.Provider value={{userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, adminToken, setAdminToken}}>
+    <Ctx.Provider value={{userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, adminToken, setAdminToken, addSongNoticeOpened, setAddSongNoticeOpened}}>
       {children}
       <ErrorModal visible={!!error} txt={shownError ?? ''} hide={() => setError(null)} />
     </Ctx.Provider>

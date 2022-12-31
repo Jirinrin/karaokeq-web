@@ -2,11 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Collapse } from 'react-collapse';
 import { DebounceInput } from 'react-debounce-input';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { DataProvider, LayoutProvider, RecyclerListView } from 'recyclerlistview/web';
+import { RecyclerListViewState } from 'recyclerlistview/dist/web/core/RecyclerListView';
+import { DataProvider, LayoutProvider, RecyclerListView, RecyclerListViewProps } from 'recyclerlistview/web';
+import { useWindowSize } from 'usehooks-ts';
 import { SongName } from '../components/SongName';
 import { GENRES, Genre, isGenre, songlist, useAppContext } from '../util/Context';
 import { useApi, useRefreshQueue } from '../util/api';
 import { useLastNonNull, useScrollPosition } from '../util/hoox';
+import { formatSongId } from '../util/utils';
 import NameWidget from './NameWidget';
 
 type SongRow = [id: string, g: Genre]
@@ -27,22 +30,29 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const api = useApi()
   const refreshQueue = useRefreshQueue()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode} = useAppContext()
+  const {queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, addSongNoticeOpened, setAddSongNoticeOpened} = useAppContext()
   const navigate = useNavigate()
+  const {width: screenWidth} = useWindowSize()
   
   const [srch, setSrch] = useState('')
   const [showUnincluded, setShowUnincluded] = useState(false)
 
   const [displaySongs, setDisplaySongs] = useState<SongRow[]>([])
   const [dataProvider, setDataProvider] = useState(new DataProvider((r1: SongRow, r2: SongRow) => r1[0] !== r2[0] || r1[1] !== r2[1]))
+  const d = useMemo<[w:number,h:number]>(() => {
+    if (viewMode === 'list') return [800,33]
+    if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
+    if (screenWidth < 800) return [0.42*screenWidth, 0.28*screenWidth]
+    if (screenWidth < 1000) return [0.3*screenWidth, 0.28*screenWidth]
+    return [300,330]
+  }, [viewMode, screenWidth])
+  const layoutProvider = new LayoutProvider(() => 'a', (_, dim) => {dim.width = d[0]; dim.height = d[1]})
 
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
   const shownSelectedSong = useLastNonNull(selectedSong)
 
   const coverRef = useRef<HTMLImageElement>(null)
   const coverTimeout = useRef<NodeJS.Timeout>()
-
-  const [addSongNoticeOpened, setAddSongNoticeOpened] = useState(true)
 
   useEffect(() => {
     const img = coverRef.current
@@ -90,32 +100,33 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     <div className='input-block pane searchbox'>
       <label htmlFor='searchbox'> 🔍 Search:</label>
       <div className="input-wrapper">
-        <DebounceInput id="searchbox" minLength={2} debounceTimeout={300} onChange={e => setSrch(e.target.value)} value={srch} placeholder="Search query" />
+        <DebounceInput id="searchbox" minLength={2} debounceTimeout={50} onChange={e => setSrch(e.target.value)} value={srch} placeholder="Search query" />
         <button className='clear-btn' onClick={() => setSrch('')}>×</button>
       </div>
     </div>
 
+  const [filtersOpened, setFiltersOpened] = useState(true)
+
   const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
   const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && songlist.unincluded.includes(shownSelectedSong), [shownSelectedSong])
 
-  const [spaceAboveResults, setSpaceAboveResults] = useState(0)
-  const [songlistScrollEnabled, setSonglistScrollEnabled] = useState(false)
+  const [scrolledToBottom, setScrolledToBottom] = useState(false)
   const [songlistScrolled, setSonglistScrolled] = useState(false)
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
 
-  useScrollPosition(({ prevPos, currPos }) => {
+  const scrollToPct = (pct: number) => window.scrollTo({top: pct * document.body.scrollHeight, behavior: 'smooth'})
+
+  useScrollPosition(({ currPos }) => {
     const pct = currPos / (document.body.scrollHeight - window.innerHeight)
-    setSpaceAboveResults(pct * 104)
-
-    if (pct >= 1)
-      setSonglistScrollEnabled(true)
-    else
-      setSonglistScrollEnabled(false)
+    setScrolledToBottom(pct > 0.99)
   }, [], undefined, true)
+  useEffect(() => {
+    if (srch && !scrolledToBottom) scrollToPct(1)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [srch])
 
-  // const songsViewRef = useRef<HTMLDivElement>(null)
-  // const scrollToTop = () => {
-  //   songsViewRef.current?.scrollToTop()
-  // }
+  const songsWrapperRef = useRef<HTMLDivElement>(null)
+  const songlistRef = useRef<RecyclerListView<RecyclerListViewProps, RecyclerListViewState>>(null)
 
   return (
     <div className='Songlist'>
@@ -131,7 +142,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             <img className="selected-cover invisible" loading="lazy" alt="" ref={coverRef} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
             <div className="pane">
               <p>Selected song</p>
-              <h2>{shownSelectedSong?.replace(' : ', ' - ')}</h2>
+              <h2>{shownSelectedSong ? formatSongId(shownSelectedSong) : null}</h2>
               <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
                 {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
               </button>
@@ -140,38 +151,52 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           </div>
         </div>
       )}
-
-      <h1>Songlist</h1>
-      {!qAccess &&
-        <div className='sticky-section anon'>
-          {searchBox}
-        </div>
-      }
-      <div className={`filter-section disablable ${srch ? 'disabled' : ''}`}>
-        <h3>Category filters</h3>
-        {Object.entries(inclFilters).map(([g, checked]) =>
-          <span key={g} style={{backgroundColor: genreToColor[g]}} className='category-filter'>
-            <input id={`filter-${g}`} type="checkbox" checked={checked} onChange={e => toggleInclFilter(g as Genre)} />
-            <label htmlFor={`filter-${g}`}>{g}</label>
-          </span>
-        )}
-        <span style={{backgroundColor: 'white'}} className='category-filter'>
-          <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
-          <label htmlFor={`filter-west`}><em>west</em></label>
-        </span>
-        <span style={{backgroundColor: 'white'}} className='category-filter'>
-          <input id={`filter-weeb`} type="checkbox" checked={weebKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(weebKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
-          <label htmlFor={`filter-weeb`}><em>east</em></label>
-        </span>
+      <div className={`select-random modal-dialog-thing`}>
+        <button className='link-btn' onClick={() => {
+          const i = Math.floor(Math.random()*displaySongs.length)
+          setSelectedSong(displaySongs[i][0])
+          songlistRef.current?.scrollToIndex(Math.max(i-3, 0), true)
+        }}>
+          🎲
+        </button>
+      </div>
+      <div className={`scroll-to-top modal-dialog-thing ${showScrollToTop ? '' : 'hidden'}`}>
+        <button className='link-btn' onClick={() => songsWrapperRef.current?.firstElementChild?.scrollTo({top: 0, behavior: 'smooth'})}>
+          ↑
+        </button>
       </div>
 
-      <div className={`show-unincluded disablable ${Object.values(inclFilters).includes(true) && !srch ? 'disabled' : ''}`}>
-        <label htmlFor="show-unincluded-songs">Show unincluded songs:</label>
-        <input id="show-unincluded-songs" type="checkbox" checked={showUnincluded} onChange={e => setShowUnincluded(!showUnincluded)} />
+      {qAccess && <h1>Songlist</h1>}
+      <div className={`sticky-section-backdrop pane ${scrolledToBottom ? '' : 'hidden'}`}></div>
+      {!qAccess && <div className='sticky-section anon'>{searchBox}</div>}
+      <div className={`filter-section pane ${filtersOpened ? '' : 'collapsed'}`}>
+        <h3><button onClick={() => setFiltersOpened(v=>!v)} className='link-btn'>FILTERS</button></h3>
+        
+        <Collapse isOpened={filtersOpened}>
+          <div className={`category-filters disablable ${srch ? 'disabled' : ''}`}>
+            {Object.entries(inclFilters).map(([g, checked]) =>
+              <span key={g} style={{backgroundColor: genreToColor[g]}} className='category-filter'>
+                <input id={`filter-${g}`} type="checkbox" checked={checked} onChange={e => toggleInclFilter(g as Genre)} />
+                <label htmlFor={`filter-${g}`}>{g}</label>
+              </span>
+            )}
+            <span style={{backgroundColor: 'white'}} className='category-filter'>
+              <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
+              <label htmlFor={`filter-west`}><em>west</em></label>
+            </span>
+            <span style={{backgroundColor: 'white'}} className='category-filter'>
+              <input id={`filter-weeb`} type="checkbox" checked={weebKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(weebKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
+              <label htmlFor={`filter-weeb`}><em>east</em></label>
+            </span>
+          </div>
+          <div className={`show-unincluded disablable ${Object.values(inclFilters).includes(true) && !srch ? 'disabled' : ''}`}>
+            <label htmlFor="show-unincluded-songs">Show unincluded songs:</label>
+            <input id="show-unincluded-songs" type="checkbox" checked={showUnincluded} onChange={e => setShowUnincluded(!showUnincluded)} />
+          </div>
+        </Collapse>
       </div>
 
-
-      <Collapse isOpened={addSongNoticeOpened && !srch}>
+      <Collapse isOpened={addSongNoticeOpened}>
         <div className='notice'>
           <h4>
             Can't find a song? Go ahead and add it to <a href={SPOTIFYURL} target="_blank" rel="noreferrer">this Spotify playlist</a>, and I'll go ahead and try to get it into the game!<br/>
@@ -181,59 +206,43 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         </div>
       </Collapse>
 
-      {/* todo: also make tile view work with recyclerview :) */}
-      {/* <button className='view-toggle' onClick={() => setViewMode(viewMode === 'list' ? 'tile' : 'list')}>VIEW: {viewMode.toUpperCase()}</button> */}
-      <div style={{height: spaceAboveResults}}></div>
-      <h2 className={`songs-title ${songlistScrolled ? 'with-border' : ''} ${viewMode === 'tile' ? 'align-center' : ''}`}>
-        Songs <span>{displaySongs.length}</span>
+      <h2
+        className={`songs-title ${songlistScrolled ? 'with-border' : ''} ${viewMode === 'tiled' ? 'align-centerr' : ''}`}
+        onClick={() => scrollToPct(scrolledToBottom ? 0 : 1)}
+      >
+        Songs <span>{displaySongs.length}</span>{' '}
+        {/* todo: turn on */}
+        {/* <button className='view-toggle' onClick={() => setViewMode(viewMode === 'list' ? 'tiled' : 'list')}>{viewMode.toUpperCase()}</button> */}
       </h2>
-      <div id="songs-wrapper">
+      <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`}>
         {displaySongs.length > 0 &&
           <RecyclerListView
-            // todo: get ref to implement scrollToTop
-            onScroll={(e, _x, y) => {setSonglistScrolled(y === 0 ? false : true)}}
-            layoutProvider={new LayoutProvider(() => 'a', (_, dim) => {dim.height = 33; dim.width = 800})}
+            onScroll={(e, _x, y) => {setSonglistScrolled(y > 0); setShowScrollToTop(y > 400)}}
+            layoutProvider={layoutProvider}
             dataProvider={dataProvider}
-            scrollViewProps={{id: 'songs-scroll-view'}}
-            style={{width: '100%', height: `calc(100vh - ${160}px)`, pointerEvents: songlistScrollEnabled ? 'all' : 'none'}}
+            ref={songlistRef}
+            canChangeSize
+            style={{width: '100%', height: `calc(100vh - ${160}px)`}}
             rowRenderer={(_, [s,g], i) => (
               <li
                 className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
                 key={`${i}-s`}
                 onClick={() => qAccess && setSelectedSong(selectedSong === s ? null : s)}
               >
-                <SongName songId={s} />
-                <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
+                {viewMode === 'tiled' &&
+                  <div className="img-wrapper">
+                    <img className="invisible" loading="lazy" alt="" src={prepForCDNQuery(s)} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
+                  </div>
+                }
+                <div>
+                  <SongName songId={s} />
+                  <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
+                </div>
               </li>
             )}
           />
         }
       </div>
-
-      {/* <ul className={`${viewMode}-view`}>
-        {displaySongs.map(([s, g], i) =>
-          <li
-            className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
-            key={`${i}-s`}
-            onClick={() => qAccess && setSelectedSong(selectedSong === s ? null : s)}
-          >
-            {viewMode === 'tile' &&
-              <div className="img-wrapper">
-                <img className="invisible" loading="lazy" alt="" src={prepForCDNQuery(s)} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
-              </div>
-            }
-            <div>
-
-            <span className='song-name'>
-              {formatSongId(s)}
-            </span>
-            <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
-            </div>
-          </li>
-        )}
-      </ul> */}
-
-      {/* todo: couple floating btns: [scroll to top], [select random song & scroll to it] */}
     </div>
   )
 }

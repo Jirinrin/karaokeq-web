@@ -11,12 +11,15 @@ export const SongName = ({ songId }: { songId: string }) => {
       setDiffWithParent(c.clientWidth - c.parentElement.clientWidth)
     }
   }, [songId])
+  
+  // const animationDuration = diffWithParent ? diffWithParent*0.14 : 5
+  const animationDuration = 9
 
   return (
-    <span className={`song-name ${diffWithParent > 20 ? 'scrolling' : ''}`}>
+    <span className={`song-name ${diffWithParent > 0 ? 'scrolling' : ''}`}>
       <span ref={ref}>{formatSongId(songId)}</span>
       {/* todo: try to get this into a more conventional scroll anim */}
-      <span className="anim" style={{animationDuration: `${diffWithParent ? diffWithParent*0.05 : 5}s`}}>{formatSongId(songId)}</span>
+      <span className="anim" style={{animationDuration: `${animationDuration}s`}}>{formatSongId(songId)}</span>
     </span>
   )
 }
