@@ -32,7 +32,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, addSongNoticeOpened, setAddSongNoticeOpened} = useAppContext()
   const navigate = useNavigate()
-  const {width: screenWidth} = useWindowSize()
+  const {width: screenWidth, height: screenHeight} = useWindowSize()
   
   const [srch, setSrch] = useState('')
   const [showUnincluded, setShowUnincluded] = useState(false)
@@ -113,7 +113,6 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const [scrolledToBottom, setScrolledToBottom] = useState(false)
   const [songlistScrolled, setSonglistScrolled] = useState(false)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
-
   const scrollToPct = (pct: number) => window.scrollTo({top: pct * document.body.scrollHeight, behavior: 'smooth'})
 
   useScrollPosition(({ currPos }) => {
@@ -156,6 +155,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           const i = Math.floor(Math.random()*displaySongs.length)
           setSelectedSong(displaySongs[i][0])
           songlistRef.current?.scrollToIndex(Math.max(i-3, 0), true)
+          if (!scrolledToBottom) scrollToPct(1)
         }}>
           🎲
         </button>
@@ -222,7 +222,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             dataProvider={dataProvider}
             ref={songlistRef}
             canChangeSize
-            style={{width: '100%', height: `calc(100vh - ${160}px)`}}
+            style={{width: '100%', height: screenHeight-160}}
             rowRenderer={(_, [s,g], i) => (
               <li
                 className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
