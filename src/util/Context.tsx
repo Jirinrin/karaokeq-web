@@ -32,7 +32,7 @@ export function useAppContext() {
   return useContext(Ctx)
 }
 
-const SONGLISTS_BY_DOMAIN: Record<string, string> = {'dz-owee': 'songlist-w'}
+const SONGLISTS_BY_DOMAIN: Record<string, string> = {'dz-owee': 'songlist-w', q42: 'songlist-w'}
 
 export default function ApplicationContext({children}: {children: React.ReactNode}) {
   const [songlist, setSonglist] = useState<SongList|null>(null)
