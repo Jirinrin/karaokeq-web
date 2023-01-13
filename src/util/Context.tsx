@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router";
+import { useLocation } from "react-router";
 import { Q, SongList } from '../util/types';
 import { useLastNonNull } from "./hoox";
 
@@ -39,8 +39,8 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   const [userName, setUserName] = useState(localStorage.getItem('username') ?? '')
   const [queue, setQueue] = useState<Q|null>(null)
 
-  const {domain} = useParams()
-  const songlistName = SONGLISTS_BY_DOMAIN[domain ?? ''] ?? 'songlist'
+  const domain = useLocation().pathname.match(/(?<=^\/)[^/]+/)?.[0]
+  const songlistName = domain === 'songlist' ? 'songlist' : SONGLISTS_BY_DOMAIN[domain ?? ''] ?? 'songlist'
   useEffect(() => { fetch(`/${songlistName}.json`).then(r => r.json()).then(setSonglist) }, [songlistName])
 
   const genres = useMemo(() => songlist ? Object.keys(songlist) : [], [songlist])
