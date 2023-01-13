@@ -6,39 +6,48 @@ import { RecyclerListViewState } from 'recyclerlistview/dist/web/core/RecyclerLi
 import { DataProvider, LayoutProvider, RecyclerListView, RecyclerListViewProps } from 'recyclerlistview/web';
 import { useWindowSize } from 'usehooks-ts';
 import { SongName } from '../components/SongName';
-import { GENRES, Genre, isGenre, songlist, useAppContext } from '../util/Context';
+import { Genre, isGenre, useAppContext } from '../util/Context';
 import { useApi, useRefreshQueue } from '../util/api';
 import { useLastNonNull, useScrollPosition } from '../util/hoox';
+import { SongListItem } from '../util/types';
 import { formatSongId } from '../util/utils';
 import NameWidget from './NameWidget';
 
-type SongRow = [id: string, g: Genre]
+type SongRow = SongListItem & {g: Genre}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SPOTIFYURL = `
 https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=8619e5362717c4f181468575c027da4d
 `.trim()
 
-const weebKeys = GENRES.filter((k) => k.match(/^[jk]-/))
-const westKeys = GENRES.filter((k) => k.startsWith('w-'))
-
 const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
-const genreToColor = Object.fromEntries(GENRES.map((g,i) => [g, COLORS[i]]))
+const LANG_RGX = /lang:(\w+)/
 
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
   const api = useApi()
   const refreshQueue = useRefreshQueue()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, addSongNoticeOpened, setAddSongNoticeOpened} = useAppContext()
+  const {queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, addSongNoticeOpened, setAddSongNoticeOpened, genres, songlist} = useAppContext()
   const navigate = useNavigate()
   const {width: screenWidth, height: screenHeight} = useWindowSize()
   
   const [srch, setSrch] = useState('')
+  const [srchTerms, langFilter] = useMemo(() => {
+    const langMatch = srch.match(LANG_RGX)?.[1]
+    const terms = srch.replace(LANG_RGX, '').toLowerCase().split(' ').map(t => t.trim()).filter(t => !!t)
+    return [terms, langMatch]
+  }, [srch])
   const [showUnincluded, setShowUnincluded] = useState(false)
 
+  const weebKeys = genres.filter((k) => k.match(/^[jk]-/))
+  const westKeys = genres.filter((k) => k.startsWith('w-'))
+  const showWestEast = weebKeys.length > 0 && westKeys.length > 0
+  const showUnincludedFilter = !!songlist?.unincluded
+  const genreToColor = useMemo(() => Object.fromEntries(genres.map((g,i) => [g, COLORS[i]])), [genres])
+
   const [displaySongs, setDisplaySongs] = useState<SongRow[]>([])
-  const [dataProvider, setDataProvider] = useState(new DataProvider((r1: SongRow, r2: SongRow) => r1[0] !== r2[0] || r1[1] !== r2[1]))
+  const [dataProvider, setDataProvider] = useState(new DataProvider((r1: SongRow, r2: SongRow) => r1.id !== r2.id))
   const d = useMemo<[w:number,h:number]>(() => {
     if (viewMode === 'list') return [800,33]
     if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
@@ -77,24 +86,27 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   }
 
   const genresToShow = useMemo(() => {
-    const all = showUnincluded ? GENRES : GENRES.filter(isGenre)
-    if (srch)
+    const all = showUnincluded ? genres : genres.filter(isGenre)
+    if (srchTerms.length)
       return all
     else if (Object.values(inclFilters).includes(true))
       return all.filter(g => inclFilters[g])
     else
       return all
-  }, [inclFilters, showUnincluded, srch]);
+  }, [inclFilters, showUnincluded, srchTerms, genres]);
 
   useEffect(() => {
-    const songs = [...genresToShow.flatMap(g => songlist[g].map((s): SongRow => [s, g]))].sort((a,b) => a[0].localeCompare(b[0]))
-    if (!srch) setDisplaySongs(songs);
+    if (!songlist) return
+    const songs = [...genresToShow.flatMap(g => songlist[g].map((s): SongRow => ({...s, g})))].sort((a,b) => a.id.localeCompare(b.id))
+    let newDisplaySongs = songs
 
-    const terms = srch.toLowerCase().split(' ').map(t => t.trim())
-    const newDisplaySongs = songs.filter(([s]) => {const sl = s.toLowerCase(); return terms.every(t => sl.includes(t))})
+    if (langFilter)
+      newDisplaySongs = newDisplaySongs.filter(({l}) => l === langFilter)
+    newDisplaySongs = newDisplaySongs.filter(({id}) => {const sl = id.toLowerCase(); return srchTerms.every(t => sl.includes(t))})
+
     setDisplaySongs(newDisplaySongs)
     setDataProvider(d => d.cloneWithRows(newDisplaySongs))
-  }, [genresToShow, srch]);
+  }, [genresToShow, songlist, srchTerms, langFilter]);
 
   const searchBox = 
     <div className='input-block pane searchbox'>
@@ -106,9 +118,10 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     </div>
 
   const [filtersOpened, setFiltersOpened] = useState(true)
+  const unincluded = useMemo(() => songlist?.unincluded.map(s => s.id), [songlist?.unincluded])
 
   const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
-  const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && songlist.unincluded.includes(shownSelectedSong), [shownSelectedSong])
+  const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && unincluded?.includes(shownSelectedSong), [shownSelectedSong, unincluded])
 
   const [scrolledToBottom, setScrolledToBottom] = useState(false)
   const [songlistScrolled, setSonglistScrolled] = useState(false)
@@ -120,9 +133,9 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     setScrolledToBottom(pct > 0.99)
   }, [], undefined, true)
   useEffect(() => {
-    if (srch && !scrolledToBottom) scrollToPct(1)
+    if (srchTerms.length && !scrolledToBottom) scrollToPct(1)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [srch])
+  }, [srchTerms])
 
   const songsWrapperRef = useRef<HTMLDivElement>(null)
   const songlistRef = useRef<RecyclerListView<RecyclerListViewProps, RecyclerListViewState>>(null)
@@ -153,7 +166,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       <div className={`select-random modal-dialog-thing`}>
         <button className='link-btn' onClick={() => {
           const i = Math.floor(Math.random()*displaySongs.length)
-          setSelectedSong(displaySongs[i][0])
+          setSelectedSong(displaySongs[i].id)
           songlistRef.current?.scrollToIndex(Math.max(i-3, 0), true)
           if (!scrolledToBottom) scrollToPct(1)
         }}>
@@ -173,26 +186,30 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         <h3><button onClick={() => setFiltersOpened(v=>!v)} className='link-btn'>FILTERS</button></h3>
         
         <Collapse isOpened={filtersOpened}>
-          <div className={`category-filters disablable ${srch ? 'disabled' : ''}`}>
+          <div className={`category-filters disablable ${srchTerms.length ? 'disabled' : ''}`}>
             {Object.entries(inclFilters).map(([g, checked]) =>
               <span key={g} style={{backgroundColor: genreToColor[g]}} className='category-filter'>
                 <input id={`filter-${g}`} type="checkbox" checked={checked} onChange={e => toggleInclFilter(g as Genre)} />
                 <label htmlFor={`filter-${g}`}>{g}</label>
               </span>
             )}
-            <span style={{backgroundColor: 'white'}} className='category-filter'>
-              <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
-              <label htmlFor={`filter-west`}><em>west</em></label>
-            </span>
-            <span style={{backgroundColor: 'white'}} className='category-filter'>
-              <input id={`filter-weeb`} type="checkbox" checked={weebKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(weebKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
-              <label htmlFor={`filter-weeb`}><em>east</em></label>
-            </span>
+            {showWestEast && <>
+              <span style={{backgroundColor: 'white'}} className='category-filter'>
+                <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
+                <label htmlFor={`filter-west`}><em>west</em></label>
+              </span>
+              <span style={{backgroundColor: 'white'}} className='category-filter'>
+                <input id={`filter-weeb`} type="checkbox" checked={weebKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(weebKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
+                <label htmlFor={`filter-weeb`}><em>east</em></label>
+              </span>
+            </>}
           </div>
-          <div className={`show-unincluded disablable ${Object.values(inclFilters).includes(true) && !srch ? 'disabled' : ''}`}>
-            <label htmlFor="show-unincluded-songs">Show unincluded songs:</label>
-            <input id="show-unincluded-songs" type="checkbox" checked={showUnincluded} onChange={e => setShowUnincluded(!showUnincluded)} />
-          </div>
+          {showUnincludedFilter &&
+            <div className={`show-unincluded disablable ${Object.values(inclFilters).includes(true) && !srchTerms.length ? 'disabled' : ''}`}>
+              <label htmlFor="show-unincluded-songs">Show unincluded songs:</label>
+              <input id="show-unincluded-songs" type="checkbox" checked={showUnincluded} onChange={e => setShowUnincluded(!showUnincluded)} />
+            </div>
+          }
         </Collapse>
       </div>
 
@@ -223,19 +240,19 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             ref={songlistRef}
             canChangeSize
             style={{width: '100%', height: screenHeight-160}}
-            rowRenderer={(_, [s,g], i) => (
+            rowRenderer={(_, {id, g}, i) => (
               <li
-                className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === s ? 'selected' : ''}`}
+                className={`song-item ${qAccess ? 'clickable' : ''} ${selectedSong === id ? 'selected' : ''}`}
                 key={`${i}-s`}
-                onClick={() => qAccess && setSelectedSong(selectedSong === s ? null : s)}
+                onClick={() => qAccess && setSelectedSong(selectedSong === id ? null : id)}
               >
                 {viewMode === 'tiled' &&
                   <div className="img-wrapper">
-                    <img className="invisible" loading="lazy" alt="" src={prepForCDNQuery(s)} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
+                    <img className="invisible" loading="lazy" alt="" src={prepForCDNQuery(id)} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
                   </div>
                 }
                 <div>
-                  <SongName songId={s} />
+                  <SongName songId={id} />
                   <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
                 </div>
               </li>
