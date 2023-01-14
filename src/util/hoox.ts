@@ -16,13 +16,12 @@ export function useLastNonNull<T>(value: T|null): T | null {
 
 function getScrollPosition(p: { element?: RefObject<HTMLElement>, useWindow?: boolean }): number {
   const target = p.element ? p.element.current : document.body
-  const position = target?.getBoundingClientRect()
 
-  return p.useWindow ? window.scrollY : position?.top ?? 0
+  return p.useWindow ? window.scrollY : target?.scrollTop ?? 0
 }
 
 export function useScrollPosition(effect: (p: {prevPos: number, currPos: number}) => void, deps: any[], element?: RefObject<HTMLElement>, useWindow?: boolean, wait?: number) {
-  const position = useRef(getScrollPosition({ useWindow }))
+  const position = useRef(getScrollPosition({ element, useWindow }))
 
   // let throttleTimeout: NodeJS.Timeout|null = null
 
@@ -42,8 +41,15 @@ export function useScrollPosition(effect: (p: {prevPos: number, currPos: number}
       }
     }
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    if (element) {
+      const el = element.current
+      el?.addEventListener('scroll', handleScroll)
+      return () => el?.removeEventListener('scroll', handleScroll)
+    } else {
+      window.addEventListener('scroll', handleScroll)
+      return () => window.removeEventListener('scroll', handleScroll)
+    }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 }

@@ -16,7 +16,7 @@ export const SongName = ({ songId }: { songId: string }) => {
   const animationDuration = 8
 
   return (
-    <span className={`song-name ${diffWithParent > 0 ? 'scrolling' : ''}`}>
+    <span className={`song-name ${diffWithParent > -10 ? 'scrolling' : ''}`}>
       <span ref={ref}>{formatSongId(songId)}</span>
       {/* todo: try to get this into a more conventional scroll anim */}
       <span className="anim" style={{animationDuration: `${animationDuration}s`}}>{formatSongId(songId)}</span>

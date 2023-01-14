@@ -2,13 +2,37 @@
 @import './generic.scss';
 
 .App {
-  max-width: 1100px;
   margin: auto;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
 
-  > * {
-    margin: 0 20px;
+  > .page {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+  
+    &.oh-snap {
+      scroll-snap-type: y mandatory;
+
+      .snap-start {
+        scroll-snap-align: start;
+      }
+      .snap-end {
+        scroll-snap-align: end;
+      }
+    }
+
+    > .page-body {
+      width: 100%;
+      max-width: 1100px;
+      min-height: 100vh;
+      padding: 0 20px;
+      margin: 0 auto;
+    }
   }
 }
+
 
 h2.align-center {
   text-align: center;
@@ -70,6 +94,7 @@ button, .link-btn {
   margin-top: 14px;
   margin-left: 0;
   float: right;
+  z-index: 1;
 }
 
 .pane {
@@ -104,8 +129,9 @@ button, .link-btn {
   border-top-right-radius: 0;
   z-index: 1;
   transition: opacity 0.3s ease;
-  &.hidden {
-    opacity: 0;
+  opacity: 0;
+  &.shown {
+    opacity: 1;
   }
 }
 
@@ -131,19 +157,27 @@ button, .link-btn {
     transform: translateY(100px);
     pointer-events: none;
   }
+  p, h2, h3 {
+    color: black;
+  }
   p {
     font-size: 10px;
     margin-top: 0;
     margin-bottom: 4px;
-    color: black;
   }
   h2 {
-    color: black;
     margin: 0;
+    font-size: 25px;
     line-height: 120%;
   }
+  h3 {
+    font-style: italic;
+    margin: 5px 0;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
   button {
-    margin: 8px 0 0;
+    margin: 12px 0 0;
   }
   img {
     width: 200px;
@@ -154,6 +188,9 @@ button, .link-btn {
     &.invisible {
       opacity: 0;
       transform: translateY(100px);
+    }
+    &.selected-cover {
+      max-width: 40vw;
     }
   }
 
@@ -194,20 +231,38 @@ button, .link-btn {
     bottom: 14px;
     right: 14px;
   }
-  &.error-modal {
-    top: 50vh;
-    left: 50vw;
-    background-color: #ffababa8;
-    max-width: 300px;
-    text-align: center;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    &.invisible {
-      transform: translate(calc(-50% + 300px), calc(-50% - 200px)) rotate(360deg);
-    }
+}
 
-    button {margin: 15px auto 0;}
-    h2 {font-size: 1.3rem;}
+.alert-modal {
+  top: 50vh;
+  left: 50vw;
+  max-width: 300px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  border-radius: 10px;
+  button {margin: 15px auto 0;}
+  h2 {font-size: 1.3rem;}
+
+  &.invisible {
+    transform: translate(-50%, calc(-50% + 100px));
+  }
+  
+  &.error-modal {
+    background-color: #ffababa8;
+  }
+
+  .menu-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+    button {
+      margin: 0;
+      border-radius: 7px;
+      padding: 8px 15px;
+      box-shadow: black 2px 2px 0px;
+    }
   }
 }
 
@@ -309,7 +364,6 @@ button, .link-btn {
 }
 
 em {
-  opacity: .7;
   font-weight: 100;
 }
 
@@ -341,6 +395,9 @@ em {
   }
   .category-filters {
     padding-top: 9px;
+    em {
+      opacity: .7;
+    }
   }
 }
 
@@ -360,8 +417,27 @@ em {
 }
 
 .Queue {
+  padding-bottom: 20px;
   .song-item {
     display: block;
+    padding: 6px 10px;
+    transition-property: background-color, margin-bottom;
+    margin: 0 -10px;
+    border-radius: 6px;
+    > p, > p > * {
+      transition: color .3s ease;
+    }
+    &.first-item {
+      background-color: rgb(255 255 255 / 42%);
+      margin-bottom: 10px;
+      > p, > p > * {
+        color: black;
+      }
+    }
+    &.second-item {
+      background-color: rgb(255 255 255 / 11%);
+      border: solid rgb(255 255 255 / 42%) 1px;
+    }
   }
 }
 
@@ -459,19 +535,19 @@ h2.songs-title {
       100% { transform: translateX(0); left: 9px; }
     }
 
-    span:first-child {
+    > span:first-child {
       display: inline-block;
     }
 
-    span.anim {
+    > span.anim {
       display: none;
     }
 
     &.scrolling {
-      span:first-child {
+      > span:first-child {
         opacity: 0;
       }
-      span.anim {
+      > span.anim {
         display: inline-block;
         position: absolute;
         left: 9px;
@@ -539,6 +615,7 @@ h2.songs-title {
       border-radius: 6px;
       position: relative;
       margin-bottom: 6px;
+      flex: 1;
     }
 
     img {

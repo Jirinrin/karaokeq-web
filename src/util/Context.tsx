@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
+import { Alert, AlertModal } from "../components/AlertModal";
 import { Q, SongList } from '../util/types';
 import { useLastNonNull } from "./hoox";
 
@@ -17,7 +18,7 @@ interface AppContext {
   setQueue: (to: Q) => void
   inclFilters: Record<Genre, boolean>
   setInclFilters: (to: Record<Genre, boolean>) => void
-  setError: (err: string) => void
+  setAlert: (alert: Alert) => void
   viewMode: ViewMode
   setViewMode: (to: ViewMode) => void
   adminToken: string|null
@@ -53,8 +54,8 @@ export default function ApplicationContext({children}: {children: React.ReactNod
 
   const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tiled') ? 'tiled' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
 
-  const [error, setError] = useState<string|null>(null)
-  const shownError = useLastNonNull(error)
+  const [alert, setAlert] = useState<Alert|null>(null)
+  const shownAlert = useLastNonNull(alert)
 
   const [addSongNoticeOpened, setAddSongNoticeOpened] = useState(true)
 
@@ -62,23 +63,9 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   useEffect(() => { adminToken && localStorage.setItem('admintoken', adminToken) }, [adminToken])
 
   return (
-    <Ctx.Provider value={{songlist, genres, userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setError, viewMode, setViewMode, adminToken, setAdminToken, addSongNoticeOpened, setAddSongNoticeOpened}}>
+    <Ctx.Provider value={{songlist, genres, userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, adminToken, setAdminToken, addSongNoticeOpened, setAddSongNoticeOpened}}>
       {children}
-      <ErrorModal visible={!!error} txt={shownError ?? ''} hide={() => setError(null)} />
+      <AlertModal visible={!!alert} alert={shownAlert} hide={() => setAlert(null)} />
     </Ctx.Provider>
-  )
-}
-
-function ErrorModal(p: {visible: boolean, txt: string, hide: () => void}) {
-  const invClass = p.visible ? '' : 'invisible'
-  return (
-    <>
-      <div className={`backdrop-glass-pane ${invClass}`}></div>
-      <div className={`pane modal-dialog-thing error-modal ${invClass}`}>
-        <p>Encountered error</p>
-        <h2>{p.txt}</h2>
-        <button className='link-btn' onClick={p.hide}>CLOSE</button>
-      </div>
-    </>
   )
 }

@@ -1,23 +1,28 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FlipMove from 'react-flip-move';
 import { Link, useParams } from "react-router-dom";
-import { sessionToken, useApi, useRefreshQueue } from "../util/api";
+import { errorAlert } from "../components/AlertModal";
+import NameWidget from "../components/NameWidget";
+import { SelectedSongModal } from "../components/SelectedSongModal";
+import { SongName } from "../components/SongName";
 import { useAppContext } from "../util/Context";
+import { sessionToken, useApi, useRefreshQueue } from "../util/api";
 import { Config, QItem } from "../util/types";
-import { formatSongId } from "../util/utils";
-import NameWidget from "./NameWidget";
 
 export default function Queue() {
-  const {queue, setQueue, setError, adminToken} = useAppContext()
+  const {queue, setQueue, setAlert, adminToken} = useAppContext()
   const api = useApi()
   const refreshQueue = useRefreshQueue()
   const {domain} = useParams()
   const [config, setConfig] = useState<Config|null>(null)
   const isAdmin = useMemo(() => !!adminToken, [adminToken])
+  const [selectedSong, setSelectedSong] = useState<string|null>(null)
+
+  const selectedQItem = queue?.find(s => s.id === selectedSong)
 
   const refreshInterval = useRef<NodeJS.Timer>()
 
-  const vote = useCallback((songId: string) => api('post', 'vote', {songId}).then(setQueue).catch(e => setError(e.response.text)), [api, setError, setQueue])
+  const vote = useCallback((songId: string) => api('post', 'vote', {songId}).then(setQueue).catch(e => setAlert(errorAlert(e.response.text))), [api, setAlert, setQueue])
 
   useEffect(() => {
     if (refreshInterval.current) clearInterval(refreshInterval.current)
@@ -32,65 +37,70 @@ export default function Queue() {
     setConfig(cc => cc && ({...cc, ...c}))
     setTimeout(refreshConfig, 30000)
   }, [api, refreshConfig])
+
   useEffect(() => { isAdmin && refreshConfig() }, [isAdmin, refreshConfig])
 
-  // annoying issue that disallows me from using this for now: https://github.com/joshwcomeau/react-flip-move/issues/273
-  const FM = FlipMove as any
+  function openAdminMenu() {
+    const btns: [string, () => void][] = [
+      ['Reset Q', () => { const はい = window.confirm('Really reset the entire queue?'); はい && api('post', 'reset').then(setQueue); }],
+      [`Set rate limit (current: ${config?.requestRateLimitMins} mins)`, () => {const mins = prompt('How many minutes?'); mins && setConfigPartial({requestRateLimitMins: Number(mins)})}],
+      [`Set waiting vote bonus (current: ${config?.waitingVoteBonus})`, () => {const v = prompt('How many votes?'); v && setConfigPartial({waitingVoteBonus: Number(v)})}]
+      // todo: change admin key
+      // todo: DELETE ENTIRE QUEUE
+    ]
+    setAlert({title: 'Admin menu', type: 'menu', btns})
+  }
 
   return (
-    <div className="Queue">
-      <div className="input-block-flekz">
-        <NameWidget />
-      </div>
-      {isAdmin && adminButtons()}
-      <Link to={`/${domain}/songlist`} className="link-btn sticky-link-btn">REQUEST A SONG</Link>
-      <h1>Queue</h1>
+    <div className="Queue page">
+      <div className="page-body">
+        <div className='sticky-section'>
+          <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
+            {isAdmin && selectedQItem &&
+              <div style={{display: 'flex', gap: 8}}>
+                <button className='link-btn' onClick={() => {const v = prompt(`How many votes? (${selectedQItem.votes.length})`); v && api('post', 'setvotes', {songId: selectedQItem.id, votes: parseInt(v)}).then(setQueue)}}>
+                  V
+                </button>
+                <button className='link-btn' onClick={() => {const はい = window.confirm('Really remove this song?'); はい && api('post', 'remove', {songId: selectedQItem.id}).then(setQueue)}}>
+                  R
+                </button>
+              </div>
+            }
+          </SelectedSongModal>
+        </div>
 
-      <FM typeName="ul" appearAnimation="fade">
-        {queue?.map((s, i) =>
-          <li className='song-item' key={s.id}>
-            {/* <span className="queue-entry-place">{i}</span> */}
-            <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0]?.match(/[^_]*/)?.[0] || 'anonymous'})</em></p>
-            <div className="q-item-flex">
-              <span className="song-name">
-                {formatSongId(s.id)}
-                {isAdmin && <>
-                <button onClick={() => {const v = prompt('How many votes?'); v && api('post', 'setvotes', {songId: s.id, votes: parseInt(v)}).then(setQueue)}}>v</button>
-                <button onClick={() => {const はい = window.confirm('Really remove this song?'); はい && api('post', 'remove', {songId: s.id}).then(setQueue)}}>r</button>
-                </>}
-              </span>
-              <button className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`} disabled={i < 2 || (!isAdmin && !!s.votes.find(v => v.includes(sessionToken))) } onClick={() => vote(s.id)}>
-                {i < 2
-                  ? `${votesTxt(s, isAdmin)} ■`
-                  : s.votes.find(v => v.includes(sessionToken))
-                    ? `${votesTxt(s, isAdmin)} ❤`
-                    : `Vote (${votesNo(s, isAdmin)})`
-                }
-              </button>
-            </div>
-          </li>
-        )}
-      </FM>
+        <div className="input-block-flekz">
+          <NameWidget />
+        </div>
+        <Link to={`/${domain}/songlist`} className="link-btn sticky-link-btn">REQUEST A SONG</Link>
+        <h1 onClick={isAdmin ? openAdminMenu : undefined}>Queue</h1>
+
+        <FlipMove typeName="ul" appearAnimation="fade">
+          {queue?.map((s, i) => renderItem(s, i))}
+        </FlipMove>
+      </div>
     </div>
   )
 
-  function adminButtons() {
+
+  function renderItem(s: QItem, i: number) {
     return (
-      <div className="admin-buttons">
-        <button onClick={() => api('post', 'reset').then(setQueue)}>Reset Q</button>
-        {config && 
-          <span className="fade-in-appear">
-            <button onClick={() => {const mins = prompt('How many minutes?'); mins && setConfigPartial({requestRateLimitMins: Number(mins)})}}>
-              Set rate limit (current: {config.requestRateLimitMins} mins)
+      <li className={`song-item ${i === 0 ? 'first-item' : i === 1 ? 'second-item' : ''} clickable`} key={s.id} onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}>
+        <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0]?.match(/[^_]*/)?.[0] || 'anonymous'})</em></p>
+        <div className="q-item-flex">
+          <SongName songId={s.id} />
+          <div>
+            <button className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`} disabled={i < 2 || (!isAdmin && !!s.votes.find(v => v.includes(sessionToken))) } onClick={() => vote(s.id)}>
+              {i < 2
+                ? `${votesTxt(s, isAdmin)} ■`
+                : s.votes.find(v => v.includes(sessionToken))
+                  ? `${votesTxt(s, isAdmin)} ❤`
+                  : `Vote (${votesNo(s, isAdmin)})`
+              }
             </button>
-            <button onClick={() => {const v = prompt('How many votes?'); v && setConfigPartial({waitingVoteBonus: Number(v)})}}>
-              Set waiting vote bonus (current: {config.waitingVoteBonus})
-            </button>
-          </span>
-        }
-        {/* <p>todo: change admin key</p> */}
-        {/* <p>todo: DELETE ENTIRE QUEUE</p> */}
-      </div>
+          </div>
+        </div>
+      </li>
     )
   }
 }
