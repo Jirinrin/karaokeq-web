@@ -42,7 +42,7 @@ export default function Queue() {
 
   function openAdminMenu() {
     const btns: [string, () => void][] = [
-      ['Reset Q', () => { const はい = window.confirm('Really reset the entire queue?'); はい && api('post', 'reset').then(setQueue); }],
+      ['Reset Q', () => { setAlert({type: 'confirm', title: 'Really reset the entire queue?', onConfirm: () => api('post', 'reset').then(setQueue)})}],
       [`Set rate limit (current: ${config?.requestRateLimitMins} mins)`, () => {const mins = prompt('How many minutes?'); mins && setConfigPartial({requestRateLimitMins: Number(mins)})}],
       [`Set waiting vote bonus (current: ${config?.waitingVoteBonus})`, () => {const v = prompt('How many votes?'); v && setConfigPartial({waitingVoteBonus: Number(v)})}]
       // todo: change admin key
@@ -85,12 +85,16 @@ export default function Queue() {
 
   function renderItem(s: QItem, i: number) {
     return (
-      <li className={`song-item ${i === 0 ? 'first-item' : i === 1 ? 'second-item' : ''} clickable`} key={s.id} onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}>
+      <li className={`song-item ${i === 0 ? 'first-item' : i === 1 ? 'second-item' : ''} ${s.id === selectedSong ? 'selected' : ''} clickable`} key={s.id} onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}>
         <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0]?.match(/[^_]*/)?.[0] || 'anonymous'})</em></p>
         <div className="q-item-flex">
           <SongName songId={s.id} />
           <div>
-            <button className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`} disabled={i < 2 || (!isAdmin && !!s.votes.find(v => v.includes(sessionToken))) } onClick={() => vote(s.id)}>
+            <button
+              className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`}
+              disabled={i < 2 || (!isAdmin && !!s.votes.find(v => v.includes(sessionToken))) }
+              onClick={(e) => {e.stopPropagation(); vote(s.id)}}
+            >
               {i < 2
                 ? `${votesTxt(s, isAdmin)} ■`
                 : s.votes.find(v => v.includes(sessionToken))

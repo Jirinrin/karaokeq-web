@@ -57,6 +57,9 @@ button, .link-btn {
   background-color: black;
   padding: 1.5px 6px;
   transition: all .3s ease;
+  &.secondary {
+    background-color: rgb(133, 133, 133);
+  }
   &:hover {
     background-color: rgb(55, 55, 55);
     cursor: pointer;
@@ -241,7 +244,7 @@ button, .link-btn {
   transform: translate(-50%, -50%);
   z-index: 2;
   border-radius: 10px;
-  button {margin: 15px auto 0;}
+  > button {margin: 15px auto 0;}
   h2 {font-size: 1.3rem;}
 
   &.invisible {
@@ -250,6 +253,12 @@ button, .link-btn {
   
   &.error-modal {
     background-color: #ffababa8;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
   }
 
   .menu-btns {
@@ -420,10 +429,14 @@ em {
   padding-bottom: 20px;
   .song-item {
     display: block;
-    padding: 6px 10px;
+    padding: 6px 12px;
     transition-property: background-color, margin-bottom;
-    margin: 0 -10px;
-    border-radius: 6px;
+    margin: 0 -21px;
+
+    @media (min-width: 1113px) {
+      border-radius: 10px;
+    }
+    
     > p, > p > * {
       transition: color .3s ease;
     }

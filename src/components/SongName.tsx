@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
+import { useWindowSize } from "usehooks-ts";
 import { formatSongId } from "../util/utils";
 
 export const SongName = ({ songId }: { songId: string }) => {
   const ref = useRef<HTMLSpanElement>(null)
   const [diffWithParent, setDiffWithParent] = useState(0)
+  const {width: windowWidth} = useWindowSize()
   
   useEffect(() => {
     const c = ref.current
     if (c?.parentElement) {
       setDiffWithParent(c.clientWidth - c.parentElement.clientWidth)
     }
-  }, [songId])
+  }, [songId, windowWidth])
   
   // const animationDuration = diffWithParent ? diffWithParent*0.14 : 5
   const animationDuration = 8

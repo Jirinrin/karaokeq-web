@@ -29,21 +29,21 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
   
       case 'confirm':
         return (
-          <>
-            <button className="link-btn" onClick={p.hide}>
+          <div className="btn-row">
+            <button className="link-btn secondary" onClick={p.hide}>
               Annuleren
             </button>
             <button className="link-btn" onClick={() => {a.onConfirm(); p.hide()}}>
               {a.confirmLabel ?? 'OK'}
             </button>
-          </>
+          </div>
         );
       
       case 'menu':
         return (
           <>
             <div className="menu-btns">
-              {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {cb(); p.hide()}}>{label}</button>)}
+              {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {p.hide(); cb()}}>{label}</button>)}
             </div>
             <button className='link-btn close-btn' onClick={p.hide}>CLOSE</button>
           </>
