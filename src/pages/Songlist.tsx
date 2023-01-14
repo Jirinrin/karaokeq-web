@@ -108,7 +108,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     </div>
 
   const [filtersOpened, setFiltersOpened] = useState(true)
-  const unincluded = useMemo(() => songlist?.unincluded.map(s => s.id), [songlist?.unincluded])
+  const unincluded = useMemo(() => songlist?.unincluded?.map(s => s.id), [songlist?.unincluded])
 
   const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
   const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && unincluded?.includes(shownSelectedSong), [shownSelectedSong, unincluded])
