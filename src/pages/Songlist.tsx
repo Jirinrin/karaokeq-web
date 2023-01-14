@@ -243,7 +243,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
               dataProvider={dataProvider}
               ref={songlistRef}
               canChangeSize
-              style={{width: '100%', height: Math.min(dataProvider.getSize()*33+55, screenHeight-160)}}
+              style={{width: '100%', height: screenHeight-160}}
               rowRenderer={(_, {id, g}, i) => (
                 <li
                   className={`song-item clickable ${selectedSong === id ? 'selected' : ''}`}
