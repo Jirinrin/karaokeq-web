@@ -11,7 +11,13 @@ export type SongListItem = {
   /** comment */
   c?: string
   /** source */
-  src?: string
+  s?: string
+  /** album */
+  a?: string
+  /** year */
+  y?: number
+  // /** genre */
+  // g?: string
 }
 /** folder structure */
 export type SongList = Record<string, SongListItem[]>

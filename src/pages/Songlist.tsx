@@ -24,6 +24,7 @@ https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=
 
 const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
 const LANG_RGX = /lang:(\w+)/
+const YEAR_RGX = /year([><]\d+)/
 
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
@@ -35,10 +36,11 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {width: screenWidth, height: screenHeight} = useWindowSize()
   
   const [srch, setSrch] = useState('')
-  const [srchTerms, langFilter] = useMemo(() => {
+  const [srchTerms, langFilter, yearFilter] = useMemo(() => {
     const langMatch = srch.match(LANG_RGX)?.[1]
-    const terms = srch.replace(LANG_RGX, '').toLowerCase().split(' ').map(t => t.trim()).filter(t => !!t)
-    return [terms, langMatch]
+    const yearMatch = srch.match(YEAR_RGX)?.[1]
+    const terms = srch.replace(LANG_RGX, '').replace(YEAR_RGX, '').toLowerCase().split(' ').map(t => t.trim()).filter(t => !!t)
+    return [terms, langMatch, yearMatch]
   }, [srch])
   const [showUnincluded, setShowUnincluded] = useState(false)
 
@@ -92,11 +94,15 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
     if (langFilter)
       newDisplaySongs = newDisplaySongs.filter(({l}) => l === langFilter)
-    newDisplaySongs = newDisplaySongs.filter(({id}) => {const sl = id.toLowerCase(); return srchTerms.every(t => sl.includes(t))})
+    if (yearFilter) {
+      const [gtlt, year] = [yearFilter[0], parseInt(yearFilter.slice(1))]
+      newDisplaySongs = newDisplaySongs.filter(gtlt === '>' ? (({y}) => y && y > year) : (({y}) => y && y < year))
+    }
+    newDisplaySongs = newDisplaySongs.filter((s) => {const sl = (s.id+(s.a??'')+(s.c??'')+(s.s??'')).toLowerCase(); return srchTerms.every(t => sl.includes(t))})
 
     setDisplaySongs(newDisplaySongs)
     setDataProvider(d => d.cloneWithRows(newDisplaySongs))
-  }, [genresToShow, songlist, srchTerms, langFilter]);
+  }, [genresToShow, songlist, srchTerms, langFilter, yearFilter]);
 
   const searchBox = 
     <div className='input-block pane searchbox'>
