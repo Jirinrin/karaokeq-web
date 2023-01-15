@@ -256,7 +256,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
                     </div>
                   }
                   <div>
-                    <SongName songId={id} />
+                    <SongName songId={id} windowWidth={screenWidth} displayMode={viewMode} />
                     <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
                   </div>
                 </li>

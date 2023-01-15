@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FlipMove from 'react-flip-move';
 import { Link, useParams } from "react-router-dom";
+import { useWindowSize } from "usehooks-ts";
 import { errorAlert } from "../components/AlertModal";
 import NameWidget from "../components/NameWidget";
 import { SelectedSongModal } from "../components/SelectedSongModal";
@@ -17,6 +18,8 @@ export default function Queue() {
   const [config, setConfig] = useState<Config|null>(null)
   const isAdmin = useMemo(() => !!adminToken, [adminToken])
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
+
+  const {width: windowWidth} = useWindowSize()
 
   const selectedQItem = queue?.find(s => s.id === selectedSong)
 
@@ -88,7 +91,7 @@ export default function Queue() {
       <li className={`song-item ${i === 0 ? 'first-item' : i === 1 ? 'second-item' : ''} ${s.id === selectedSong ? 'selected' : ''} clickable`} key={s.id} onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}>
         <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0]?.match(/[^_]*/)?.[0] || 'anonymous'})</em></p>
         <div className="q-item-flex">
-          <SongName songId={s.id} />
+          <SongName songId={s.id} windowWidth={windowWidth} displayMode='list' />
           <div>
             <button
               className={`votes-count vote-btn ${i<2 ? 'locked' : ''}`}
