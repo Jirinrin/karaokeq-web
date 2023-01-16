@@ -134,7 +134,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     pct ? pageRef.current?.scrollBy({top: 1, behavior: smooth ? 'smooth' : 'auto'}) : pageRef.current?.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'})
 
   const [initialLoaded, setInitialLoaded] = useState(false)
-  useEffect(() => {setInitialLoaded(true)}, [genresToShow])
+  useEffect(() => {setInitialLoaded(true); scrollToPct(0)}, [genresToShow, singstarFilter])
 
   useScrollPosition(({ currPos }) => {
     if (!pageRef.current) return
