@@ -12,10 +12,8 @@ import { SongName } from '../components/SongName';
 import { Genre, isGenre, useAppContext } from '../util/Context';
 import { useApi, useRefreshQueue } from '../util/api';
 import { useLastNonNull, useScrollPosition } from '../util/hoox';
-import { SongListItem } from '../util/types';
+import { EnhancedSongListItem } from '../util/types';
 import { prepForCDNQuery } from '../util/utils';
-
-type SongRow = SongListItem & {g: Genre}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SPOTIFYURL = `
@@ -42,6 +40,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     const terms = srch.replace(LANG_RGX, '').replace(YEAR_RGX, '').toLowerCase().split(' ').map(t => t.trim()).filter(t => !!t)
     return [terms, langMatch, yearMatch]
   }, [srch])
+  const [singstarFilter, setSingstarFilter] = useState(false)
   const [showUnincluded, setShowUnincluded] = useState(false)
 
   const weebKeys = genres.filter((k) => k.match(/^[jk]-/))
@@ -50,8 +49,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const showUnincludedFilter = !!songlist?.unincluded
   const genreToColor = useMemo(() => Object.fromEntries(genres.map((g,i) => [g, COLORS[i]])), [genres])
 
-  const [displaySongs, setDisplaySongs] = useState<SongRow[]>([])
-  const [dataProvider, setDataProvider] = useState(new DataProvider((r1: SongRow, r2: SongRow) => r1.id !== r2.id))
+  const [displaySongs, setDisplaySongs] = useState<EnhancedSongListItem[]>([])
+  const [dataProvider, setDataProvider] = useState(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id))
   const d = useMemo<[w:number,h:number]>(() => {
     if (viewMode === 'list') return [800,33]
     if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
@@ -78,19 +77,25 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   }
 
   const genresToShow = useMemo(() => {
-    const all = showUnincluded ? genres : genres.filter(isGenre)
+    const allGenres = showUnincluded ? genres : genres.filter(isGenre)
     if (srchTerms.length)
-      return all
+      return allGenres
     else if (Object.values(inclFilters).includes(true))
-      return all.filter(g => inclFilters[g])
+      return allGenres.filter(g => inclFilters[g])
     else
-      return all
+      return allGenres
   }, [inclFilters, showUnincluded, srchTerms, genres]);
 
   useEffect(() => {
     if (!songlist) return
-    const songs = [...genresToShow.flatMap(g => songlist[g].map((s): SongRow => ({...s, g})))].sort((a,b) => a.id.localeCompare(b.id))
-    let newDisplaySongs = songs
+    let newDisplaySongs = genresToShow.flatMap(g => songlist[g])
+
+    if (singstarFilter) {
+      const gFilterActive = Object.values(inclFilters).includes(true)
+      const extraSongs = Object.entries(songlist).filter(([g]) => !(gFilterActive && genresToShow.includes(g))).map(([,ss])=>ss).flat().filter(s => s.e === 's')
+      newDisplaySongs = gFilterActive ? [...newDisplaySongs, ...extraSongs] : extraSongs
+    }
+    newDisplaySongs.sort((a,b) => a.id.localeCompare(b.id))
 
     if (langFilter)
       newDisplaySongs = newDisplaySongs.filter(({l}) => l === langFilter)
@@ -102,7 +107,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
     setDisplaySongs(newDisplaySongs)
     setDataProvider(d => d.cloneWithRows(newDisplaySongs))
-  }, [genresToShow, songlist, srchTerms, langFilter, yearFilter]);
+  }, [genresToShow, songlist, srchTerms, langFilter, yearFilter, singstarFilter, inclFilters]);
 
   const searchBox = 
     <div className='input-block pane searchbox'>
@@ -203,6 +208,10 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
                   <label htmlFor={`filter-${g}`}>{g}</label>
                 </span>
               )}
+              <span style={{backgroundColor: '#DDDDDD'}} className='category-filter'>
+                <input id={`filter-singstar`} type="checkbox" checked={singstarFilter} onChange={e => setSingstarFilter(!singstarFilter)} />
+                <label htmlFor={`filter-singstar`}><em>singstar</em></label>
+              </span>
               {showWestEast && <>
                 <span style={{backgroundColor: 'white'}} className='category-filter'>
                   <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
@@ -250,20 +259,23 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
               ref={songlistRef}
               canChangeSize
               style={{width: '100%', height: screenHeight-160}}
-              rowRenderer={(_, {id, g}, i) => (
+              rowRenderer={(_, s: EnhancedSongListItem, i) => (
                 <li
-                  className={`song-item clickable ${selectedSong === id ? 'selected' : ''}`}
+                  className={`song-item clickable ${selectedSong === s.id ? 'selected' : ''}`}
                   key={`${i}-s`}
-                  onClick={() => setSelectedSong(selectedSong === id ? null : id)}
+                  onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}
                 >
                   {viewMode === 'tiled' &&
                     <div className="img-wrapper">
-                      <img className="invisible" loading="lazy" alt="" src={prepForCDNQuery(id)} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
+                      <img className="invisible" loading="lazy" alt="" src={prepForCDNQuery(s.id)} onLoad={(e) => e.currentTarget.classList.remove('invisible')} />
                     </div>
                   }
                   <div>
-                    <SongName songId={id} windowWidth={screenWidth} displayMode={viewMode} />
-                    <span className='category-chip' style={{backgroundColor: genreToColor[g]}}>{g}</span>
+                    <SongName songId={s.id} windowWidth={screenWidth} displayMode={viewMode} />
+                    {singstarFilter && s.e === 's'
+                      ? <span className='category-chip' style={{backgroundColor: '#DDDDDD'}}>singstar</span>
+                      : <span className='category-chip' style={{backgroundColor: genreToColor[s.g]}}>{s.g}</span>
+                    }
                   </div>
                 </li>
               )}

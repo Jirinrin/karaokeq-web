@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { Alert, AlertModal } from "../components/AlertModal";
-import { Q, SongList } from '../util/types';
+import { EnhancedSongList, Q, SongList } from '../util/types';
 import { useLastNonNull } from "./hoox";
 
 export type Genre = `w-${string}` | `j-${string}` | string
@@ -10,7 +10,7 @@ export const isGenre = (g: Genre) => g !== 'unincluded';
 type ViewMode = 'list'|'tiled'
 
 interface AppContext {
-  songlist: SongList|null
+  songlist: EnhancedSongList|null
   genres: Genre[]
   userName: string
   setUserName: (to: string) => void
@@ -36,13 +36,16 @@ export function useAppContext() {
 const SONGLISTS_BY_DOMAIN: Record<string, string> = {'dz-owee': 'songlist-w', q42: 'songlist-w'}
 
 export default function ApplicationContext({children}: {children: React.ReactNode}) {
-  const [songlist, setSonglist] = useState<SongList|null>(null)
+  const [songlist, setSonglist] = useState<EnhancedSongList|null>(null)
   const [userName, setUserName] = useState(localStorage.getItem('username') ?? '')
   const [queue, setQueue] = useState<Q|null>(null)
 
   const domain = useLocation().pathname.match(/(?<=^\/)[^/]+/)?.[0]
   const songlistName = domain === 'songlist' ? 'songlist' : SONGLISTS_BY_DOMAIN[domain ?? ''] ?? 'songlist'
-  useEffect(() => { fetch(`/${songlistName}.json`).then(r => r.json()).then(setSonglist) }, [songlistName])
+  useEffect(() => {
+    fetch(`/${songlistName}.json`).then(r => r.json())
+      .then((sl: SongList) => setSonglist(Object.fromEntries(Object.entries(sl).map(([g,ss]) => [g, ss.map(s => ({...s, g}))]))))
+  }, [songlistName])
 
   const genres = useMemo(() => songlist ? Object.keys(songlist) : [], [songlist])
 

@@ -1,3 +1,5 @@
+import { Genre } from "./Context";
+
 export type VoteToken = `${string}_${string}` // username_sessiontoken
 export type QItem = {id: string; votes: VoteToken[]; requestedAt: number; waitingVotes: number}
 export type Q = QItem[]
@@ -16,8 +18,12 @@ export type SongListItem = {
   a?: string
   /** year */
   y?: number
+  /** edition. s=singstar */
+  e?: 's'
   // /** genre */
   // g?: string
 }
+export type EnhancedSongListItem = SongListItem & {g: Genre}
 /** folder structure */
 export type SongList = Record<string, SongListItem[]>
+export type EnhancedSongList = Record<string, EnhancedSongListItem[]>
