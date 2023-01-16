@@ -272,10 +272,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
                   }
                   <div>
                     <SongName songId={s.id} windowWidth={screenWidth} displayMode={viewMode} />
-                    {singstarFilter && s.e === 's'
-                      ? <span className='category-chip' style={{backgroundColor: '#DDDDDD'}}>singstar</span>
-                      : <span className='category-chip' style={{backgroundColor: genreToColor[s.g]}}>{s.g}</span>
-                    }
+                    <span className='category-chip' style={{backgroundColor: genreToColor[s.g]}}>{s.g}</span>
+                    {singstarFilter && s.e === 's' &&<span className='category-chip' style={{backgroundColor: '#DDDDDD'}}>ss</span>}
                   </div>
                 </li>
               )}

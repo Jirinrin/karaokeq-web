@@ -10,7 +10,8 @@
   > .page {
     width: 100%;
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: overlay;
+    overflow-x: hidden;
   
     &.oh-snap {
       scroll-snap-type: y mandatory;
@@ -501,16 +502,18 @@ h2.songs-title {
 
   > div {
     display: flex;
+    gap: 5px;
     align-items: center;
     flex-direction: row;
   }
 
   --song-item-bg: rgba(10, 10, 10, 0.8);
 
-  &.clickable {
+  &.clickable, .song-name.clickable {
     cursor: pointer;
-    * {
-      transition: all .2s ease;
+    .song-name, &.song-name {
+      transition: .2s ease;
+      transition-property: background-color, color;
     }
 
     &:hover {
@@ -518,10 +521,8 @@ h2.songs-title {
     }
     &.selected {
       --song-item-bg: white;
-      .song-name {
-        &, * {
-          color: black;
-        }
+      &, * {
+        color: black;
       }
       &:hover {
         --song-item-bg: rgb(222, 222, 222);
@@ -577,7 +578,6 @@ h2.songs-title {
 .category-chip {
   background-color: white;
   padding: 1px 5px;
-  margin-inline-start: 10px;
   border-radius: 6px;
   color: black;
   white-space: nowrap;

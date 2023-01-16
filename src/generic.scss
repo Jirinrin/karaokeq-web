@@ -20,12 +20,11 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  transform: translateX(-50px);
+  width: 5px;
+  border-radius: 2px;
 
   &-thumb {
     background-color: rgba(255, 255, 255, 0.144);
-    width: 3px;
     &:hover {
       background-color: rgba(255, 255, 255, 0.226);
     }
