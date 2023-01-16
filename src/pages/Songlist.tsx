@@ -131,7 +131,13 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const scrolledToBottom = useRef(false)
   const [songlistScrolled, setSonglistScrolled] = useState(false)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
-  const scrollToPct = (pct: number, smooth = true) => pageRef.current?.scrollBy({top: pct ? 1 : -1, behavior: smooth ? 'smooth' : 'auto'})
+  const scrollToPct = (pct: 0|1, smooth = true) =>
+    pct ? pageRef.current?.scrollBy({top: 1, behavior: smooth ? 'smooth' : 'auto'}) : pageRef.current?.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'})
+
+  useEffect(() => {
+    setTimeout(() => scrollToPct(0, false), 400) // This is ugly but better than nothing haha. Bcuz sometimes it just starts at lowest scroll position :(
+    window.scrollBy({top: 100}) // Hack to hopefully make it scroll past the top bar on e.g. chrome mobile
+  }, [genresToShow])
 
   useScrollPosition(({ currPos }) => {
     if (!pageRef.current) return
@@ -249,7 +255,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           Songs <span>{displaySongs.length}</span>{' '}
           <button className='view-toggle' onClick={(e) => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
         </h2>
-        <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`}>
+        <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`} style={{width: '100%', height: screenHeight-160}}>
           {displaySongs.length > 0 &&
             <RecyclerListView
               onScroll={(_e, _x, y) => onScrollRecyclerList(y)}
@@ -258,7 +264,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
               dataProvider={dataProvider}
               ref={songlistRef}
               canChangeSize
-              style={{width: '100%', height: screenHeight-160}}
+              style={{width: '100%', height: '100%'}}
               rowRenderer={(_, s: EnhancedSongListItem, i) => (
                 <li
                   className={`song-item clickable ${selectedSong === s.id ? 'selected' : ''}`}
