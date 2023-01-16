@@ -31,7 +31,7 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
         return (
           <div className="btn-row">
             <button className="link-btn secondary" onClick={p.hide}>
-              Annuleren
+              CANCEL
             </button>
             <button className="link-btn" onClick={() => {a.onConfirm(); p.hide()}}>
               {a.confirmLabel ?? 'OK'}

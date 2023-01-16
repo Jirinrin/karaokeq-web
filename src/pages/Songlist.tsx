@@ -49,8 +49,6 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const showUnincludedFilter = !!songlist?.unincluded
   const genreToColor = useMemo(() => Object.fromEntries(genres.map((g,i) => [g, COLORS[i]])), [genres])
 
-  const [displaySongs, setDisplaySongs] = useState<EnhancedSongListItem[]>([])
-  const [dataProvider, setDataProvider] = useState(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id))
   const d = useMemo<[w:number,h:number]>(() => {
     if (viewMode === 'list') return [800,33]
     if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
@@ -86,8 +84,9 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       return allGenres
   }, [inclFilters, showUnincluded, srchTerms, genres]);
 
-  useEffect(() => {
-    if (!songlist) return
+  const dataProviderRef = useRef(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id))
+  const [displaySongs, dataProvider] = useMemo<[EnhancedSongListItem[], DataProvider]>(() => {
+    if (!songlist) return [[], dataProviderRef.current]
     let newDisplaySongs = genresToShow.flatMap(g => songlist[g])
 
     if (singstarFilter) {
@@ -105,8 +104,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     }
     newDisplaySongs = newDisplaySongs.filter((s) => {const sl = (s.id+(s.a??'')+(s.c??'')+(s.s??'')).toLowerCase(); return srchTerms.every(t => sl.includes(t))})
 
-    setDisplaySongs(newDisplaySongs)
-    setDataProvider(d => d.cloneWithRows(newDisplaySongs))
+    dataProviderRef.current = dataProviderRef.current.cloneWithRows(newDisplaySongs)
+    return [newDisplaySongs, dataProviderRef.current]
   }, [genresToShow, songlist, srchTerms, langFilter, yearFilter, singstarFilter, inclFilters]);
 
   const searchBox = 
@@ -134,10 +133,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const scrollToPct = (pct: 0|1, smooth = true) =>
     pct ? pageRef.current?.scrollBy({top: 1, behavior: smooth ? 'smooth' : 'auto'}) : pageRef.current?.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'})
 
-  useEffect(() => {
-    setTimeout(() => scrollToPct(0, false), 400) // This is ugly but better than nothing haha. Bcuz sometimes it just starts at lowest scroll position :(
-    window.scrollBy({top: 100}) // Hack to hopefully make it scroll past the top bar on e.g. chrome mobile
-  }, [genresToShow])
+  const [initialLoaded, setInitialLoaded] = useState(false)
+  useEffect(() => {setInitialLoaded(true)}, [genresToShow])
 
   useScrollPosition(({ currPos }) => {
     if (!pageRef.current) return
@@ -163,7 +160,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   }, [srchTerms])
 
   return (
-    <div className='Songlist page oh-snap' ref={pageRef}>
+    // oh-snap is only set after initial page load, because otherwise it'll sometimes randomly snap to the bottom
+    <div className={`Songlist page ${initialLoaded ? 'oh-snap' : ''}`} ref={pageRef}>
       <div className="snap-start"></div>
       <div className="page-body">
         <div className='sticky-section'>

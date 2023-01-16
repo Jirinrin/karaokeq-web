@@ -1,6 +1,11 @@
+:root {
+  height: 100%;
+}
+
 body {
   background-color: rgb(44, 44, 44);
-  height: 100vh;
+  position: relative;
+  height: 100%;
   width: 100vw;
   overflow: hidden;
   margin: 0;

@@ -8,6 +8,7 @@ import { SelectedSongModal } from "../components/SelectedSongModal";
 import { SongName } from "../components/SongName";
 import { useAppContext } from "../util/Context";
 import { sessionToken, useApi, useRefreshQueue } from "../util/api";
+import { useLastNonNull } from "../util/hoox";
 import { Config, QItem } from "../util/types";
 
 export default function Queue() {
@@ -22,7 +23,8 @@ export default function Queue() {
   const {width: windowWidth} = useWindowSize()
 
   const selectedQItemIndex = queue?.findIndex(s => s.id === selectedSong) ?? -1
-  const selectedQItem = queue?.[selectedQItemIndex]
+  const shownSelectedQItemIndex = useLastNonNull(selectedQItemIndex === -1 ? null : selectedQItemIndex) ?? -1
+  const selectedQItem = queue?.[shownSelectedQItemIndex]
 
   const refreshInterval = useRef<NodeJS.Timer>()
 
@@ -46,7 +48,7 @@ export default function Queue() {
 
   function openAdminMenu() {
     const btns: [string, () => void][] = [
-      ['Reset Q', () => { setAlert({type: 'confirm', title: 'Really reset the entire queue?', onConfirm: () => api('post', 'reset').then(setQueue)})}],
+      ['Reset Q', () => {setAlert({type: 'confirm', title: 'Really reset the entire queue?', onConfirm: () => api('post', 'reset').then(setQueue)})}],
       [`Set rate limit (current: ${config?.requestRateLimitMins} mins)`, () => {const mins = prompt('How many minutes?'); mins && setConfigPartial({requestRateLimitMins: Number(mins)})}],
       [`Set waiting vote bonus (current: ${config?.waitingVoteBonus})`, () => {const v = prompt('How many votes?'); v && setConfigPartial({waitingVoteBonus: Number(v)})}]
       // todo: change admin key
@@ -57,32 +59,30 @@ export default function Queue() {
   return (
     <div className="Queue page">
       <div className="page-body">
-        <div className='sticky-section'>
-          <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
-            <div style={{display: 'flex', gap: 8}}>
-            <button
-              className="link-btn"
-              disabled={selectedQItemIndex < 2 || !selectedQItem || (!isAdmin && !!selectedQItem.votes.find(v => v.includes(sessionToken))) }
-              onClick={(e) => {e.stopPropagation(); selectedQItem && vote(selectedQItem.id)}}
-            >
-              {!selectedQItem || selectedQItemIndex < 2 ? 'VOTING DISABLED'
-                : selectedQItem.votes.find(v => v.includes(sessionToken))
-                  ? `ALREADY VOTED (${votesNo(selectedQItem, isAdmin)})`
-                  : `VOTE (${votesNo(selectedQItem, isAdmin)})`
-              }
-            </button>
+        <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
+          <div style={{display: 'flex', gap: 8}}>
+          <button
+            className="link-btn"
+            disabled={shownSelectedQItemIndex < 2 || !selectedQItem || (!isAdmin && !!selectedQItem.votes.find(v => v.includes(sessionToken))) }
+            onClick={(e) => {e.stopPropagation(); selectedQItem && vote(selectedQItem.id)}}
+          >
+            {!selectedQItem || shownSelectedQItemIndex < 2 ? 'VOTING DISABLED'
+              : selectedQItem.votes.find(v => v.includes(sessionToken))
+                ? `ALREADY VOTED (${votesNo(selectedQItem, isAdmin)})`
+                : `VOTE (${votesNo(selectedQItem, isAdmin)})`
+            }
+          </button>
 
-            {isAdmin && selectedQItem && <>
-              <button className='link-btn' onClick={() => {const v = prompt(`How many votes? (${selectedQItem.votes.length})`); v && api('post', 'setvotes', {songId: selectedQItem.id, votes: parseInt(v)}).then(setQueue)}}>
-                V
-              </button>
-              <button className='link-btn' onClick={() => {const はい = window.confirm('Really remove this song?'); はい && api('post', 'remove', {songId: selectedQItem.id}).then(setQueue)}}>
-                R
-              </button>
-            </>}
-            </div>
-          </SelectedSongModal>
-        </div>
+          {isAdmin && selectedQItem && <>
+            <button className='link-btn' onClick={() => {const v = prompt(`How many votes? (${selectedQItem.votes.length})`); v && api('post', 'setvotes', {songId: selectedQItem.id, votes: parseInt(v)}).then(setQueue)}}>
+              V
+            </button>
+            <button className='link-btn' onClick={() => {setAlert({type: 'confirm', title: 'Really remove this song?', onConfirm: () => api('post', 'remove', {songId: selectedQItem.id}).then(setQueue)})}}>
+              R
+            </button>
+          </>}
+          </div>
+        </SelectedSongModal>
 
         <div className="input-block-flekz">
           <NameWidget />
