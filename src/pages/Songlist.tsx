@@ -124,10 +124,16 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     </div>
 
   const [filtersOpened, setFiltersOpened] = useState(true)
-  const unincluded = useMemo(() => songlist?.unincluded?.map(s => s.id), [songlist?.unincluded])
 
-  const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
-  const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && unincluded?.includes(shownSelectedSong), [shownSelectedSong, unincluded])
+  const unableToRequestReason: string|null = useMemo(() => {
+    if (!shownSelectedSong)
+      return null
+    if (queue?.find(s => s.id === shownSelectedSong))
+      return 'SONG ALREADY IN QUEUE'
+    if (songlist?.unincluded?.map(s => s.id).includes(shownSelectedSong))
+      return 'SONG UNAVAILABLE'
+    return null
+  }, [queue, shownSelectedSong, songlist?.unincluded])
 
   const pageRef = useRef<HTMLDivElement>(null)
   const songsWrapperRef = useRef<HTMLDivElement>(null)
@@ -182,8 +188,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
           <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
             {qAccess &&
-              <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
-                {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
+              <button className='link-btn' disabled={!!unableToRequestReason} onClick={() => selectedSong && requestSong(selectedSong)}>
+                {unableToRequestReason ?? 'REQUEST SONG'}
               </button>
             }
           </SelectedSongModal>
@@ -193,7 +199,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           <button className='link-btn' onClick={() => {
             const i = Math.floor(Math.random()*displaySongs.length)
             setSelectedSong(displaySongs[i].id)
-            songlistRef.current?.scrollToIndex(Math.max(i-3, 0), true)
+            songlistRef.current?.scrollToIndex(Math.max(i-(viewMode === 'tiled' ? 1 : 3), 0), true)
             if (!scrolledToBottom.current) scrollToPct(1)
           }}>
             🎲

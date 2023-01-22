@@ -11,9 +11,11 @@ export function Admin() {
   
   return (
     <div className="Admin page">
-      <h1>Admin</h1>
-      <button onClick={authorize}>Authorize</button>
-      <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
+      <div className="page-body">
+        <h1>Admin</h1>
+        <button onClick={authorize}>Authorize</button>
+        <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
+      </div>
     </div>
   )
 }
