@@ -47,6 +47,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const westKeys = genres.filter((k) => k.startsWith('w-'))
   const showWestEast = weebKeys.length > 0 && westKeys.length > 0
   const showUnincludedFilter = !!songlist?.unincluded
+  const showSingstarFilter = useMemo(() => !!Object.values(songlist ?? {}).flat().find(s => s.e === 's'), [songlist])
   const genreToColor = useMemo(() => Object.fromEntries(genres.map((g,i) => [g, COLORS[i]])), [genres])
 
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
@@ -225,10 +226,12 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
                   <label htmlFor={`filter-${g}`}>{g}</label>
                 </span>
               )}
-              <span style={{backgroundColor: '#DDDDDD'}} className='category-filter'>
-                <input id={`filter-singstar`} type="checkbox" checked={singstarFilter} onChange={e => setSingstarFilter(!singstarFilter)} />
-                <label htmlFor={`filter-singstar`}><em>singstar</em></label>
-              </span>
+              {showSingstarFilter &&
+                <span style={{backgroundColor: '#DDDDDD'}} className='category-filter'>
+                  <input id={`filter-singstar`} type="checkbox" checked={singstarFilter} onChange={e => setSingstarFilter(!singstarFilter)} />
+                  <label htmlFor={`filter-singstar`}><em>singstar</em></label>
+                </span>
+              }
               {showWestEast && <>
                 <span style={{backgroundColor: 'white'}} className='category-filter'>
                   <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
