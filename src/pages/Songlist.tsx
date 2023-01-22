@@ -29,7 +29,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const api = useApi()
   const refreshQueue = useRefreshQueue()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, addSongNoticeOpened, setAddSongNoticeOpened, genres, songlist} = useAppContext()
+  const {queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, genres, songlist} = useAppContext()
   const navigate = useNavigate()
   const {width: screenWidth, height: screenHeight} = useWindowSize()
   
@@ -252,22 +252,13 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           </Collapse>
         </div>
 
-        <Collapse isOpened={addSongNoticeOpened}>
-          <div className='notice'>
-            <h4>
-              Can't find a song? Go ahead and add it to <a href={SPOTIFYURL} target="_blank" rel="noreferrer">this Spotify playlist</a>, and I'll go ahead and try to get it into the game!<br/>
-              Or if you got ultrastar files for me: even better! You can drop those <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">in here</a>!
-              <button onClick={() => setAddSongNoticeOpened(false)}>Dismiss</button>
-            </h4>
-          </div>
-        </Collapse>
-
         <h2
           className={`songs-title ${songlistScrolled ? 'with-border' : ''} ${viewMode === 'tiled' ? 'align-centerr' : ''}`}
           onClick={() => scrollToPct(scrolledToBottom.current ? 0 : 1)}
         >
           Songs <span>{displaySongs.length}</span>{' '}
-          <button className='view-toggle' onClick={(e) => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
+          <button className='song-title-btn' onClick={e => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
+          <button className='song-title-btn' onClick={e => {e.stopPropagation(); setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})}}><em>ADD</em></button>
         </h2>
         <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`} style={{width: '100%', height: screenHeight-160}}>
           {displaySongs.length > 0 &&
@@ -303,5 +294,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       </div>
       <div className="snap-end" />
     </div>
+  )
+}
+
+function addSongNotice() {
+  return (
+    <p>
+      Can't find a song? Go ahead and add it to <br/> <a href={SPOTIFYURL} target="_blank" rel="noreferrer">this Spotify playlist</a> <br/> and it may be added!<br/>
+      {/* Or if you got ultrastar files for me: even better! You can drop those <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">in here</a>! */}
+    </p>
   )
 }

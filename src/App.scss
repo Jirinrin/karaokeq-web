@@ -261,6 +261,24 @@ button, .link-btn {
     // color: white;
     // text-shadow: 0px 3px 0px black;
   }
+  p {
+    margin-top: 10px;
+    font-size: 0.7rem;
+    a {
+      color: white;
+      @keyframes pulse-bw {
+        to {color: rgb(206, 206, 206)}
+      }
+      text-decoration: none;
+      letter-spacing: .1rem;
+      animation: pulse-bw .2s infinite alternate;
+      font-style: italic;
+      &:hover {
+        color: white;
+        animation: none;
+      }
+    }
+  }
 
   &.invisible {
     transform: translate(-50%, calc(-50% + 100px));
@@ -610,11 +628,11 @@ h2.songs-title {
   font-size: 12px;
 }
 
-.view-toggle {
+.song-title-btn {
   border: none;
   margin: 0;
+  margin-left: 8px;
   padding: 4px 8px;
-  margin-top: 12px;
 }
 
 .ReactCollapse--collapse {

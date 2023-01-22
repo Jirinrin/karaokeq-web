@@ -23,8 +23,6 @@ interface AppContext {
   setViewMode: (to: ViewMode) => void
   adminToken: string|null
   setAdminToken: (to: string|null) => void
-  addSongNoticeOpened: boolean
-  setAddSongNoticeOpened: (to: boolean) => void
 }
 
 const Ctx = createContext<AppContext>({} as AppContext)
@@ -60,13 +58,11 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   const [alert, setAlert] = useState<Alert|null>(null)
   const shownAlert = useLastNonNull(alert)
 
-  const [addSongNoticeOpened, setAddSongNoticeOpened] = useState(true)
-
   useEffect(() => { localStorage.setItem('username', userName) }, [userName])
   useEffect(() => { adminToken && localStorage.setItem('admintoken', adminToken) }, [adminToken])
 
   return (
-    <Ctx.Provider value={{songlist, genres, userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, adminToken, setAdminToken, addSongNoticeOpened, setAddSongNoticeOpened}}>
+    <Ctx.Provider value={{songlist, genres, userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, adminToken, setAdminToken}}>
       {children}
       <AlertModal visible={!!alert} alert={shownAlert} hide={() => setAlert(null)} />
     </Ctx.Provider>
