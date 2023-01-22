@@ -64,7 +64,7 @@ export default function Queue() {
           <button
             className="link-btn"
             disabled={shownSelectedQItemIndex < 2 || !selectedQItem || (!isAdmin && !!selectedQItem.votes.find(v => v.includes(sessionToken))) }
-            onClick={(e) => {e.stopPropagation(); selectedQItem && vote(selectedQItem.id)}}
+            onClick={(e) => {e.stopPropagation(); selectedQItem && vote(selectedQItem.id); setSelectedSong(null)}}
           >
             {!selectedQItem || shownSelectedQItemIndex < 2 ? 'VOTING DISABLED'
               : selectedQItem.votes.find(v => v.includes(sessionToken))
