@@ -148,7 +148,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   const [initialLoaded, setInitialLoaded] = useState(false)
   useEffect(() => {setInitialLoaded(true); scrollToPct(0)}, [])
-  useEffect(() => {scrollToPct(0)}, [genresToShow, showUnincluded, singstarFilter])
+  useEffect(() => {scrollToPct(0); setSelectedSong(null)}, [genresToShow, showUnincluded, singstarFilter])
 
   useScrollPosition(({ currPos }) => {
     if (!pageRef.current) return
@@ -171,7 +171,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   useEffect(() => {
     if (srchTerms.length && !scrolledToBottom.current) scrollToPct(1)
-  }, [srchTerms])
+  }, [selectedSong, srchTerms])
 
   return (
     // oh-snap is only set after initial page load, because otherwise it'll sometimes randomly snap to the bottom
@@ -180,7 +180,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       <div className="page-body">
         <div className='sticky-section'>
           {qAccess && <>
-            <div className="input-block-flekz">
+            <div className="input-block-flekz" onFocus={() => selectedSong && setSelectedSong(null)}>
               {searchBox}
               <NameWidget />
             </div>
