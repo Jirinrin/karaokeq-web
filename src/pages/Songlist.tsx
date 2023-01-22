@@ -280,7 +280,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
                 <li
                   className={`song-item clickable ${s.selected ? 'selected' : ''}`}
                   key={`${i}-s`}
-                  onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}
+                  onClick={() => setSelectedSong(ss => ss === s.id ? null : s.id)}
                 >
                   {viewMode === 'tiled' &&
                     <div className="img-wrapper">
