@@ -49,17 +49,19 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const showUnincludedFilter = !!songlist?.unincluded
   const genreToColor = useMemo(() => Object.fromEntries(genres.map((g,i) => [g, COLORS[i]])), [genres])
 
-  const d = useMemo<[w:number,h:number]>(() => {
-    if (viewMode === 'list') return [800,33]
-    if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
-    if (screenWidth < 800) return [0.42*screenWidth, 0.28*screenWidth]
-    if (screenWidth < 1000) return [0.3*screenWidth, 0.28*screenWidth]
-    return [300,330]
-  }, [viewMode, screenWidth])
-  const layoutProvider = new LayoutProvider(() => 'a', (_, dim) => {dim.width = d[0]; dim.height = d[1]})
-
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
   const shownSelectedSong = useLastNonNull(selectedSong)
+
+  const layoutProvider = useMemo<LayoutProvider>(() => {
+    const d: [w:number,h:number] = (() => {
+      if (viewMode === 'list') return [800,33]
+      if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
+      if (screenWidth < 800) return [0.42*screenWidth, 0.28*screenWidth]
+      if (screenWidth < 1000) return [0.3*screenWidth, 0.28*screenWidth]
+      return [300,330]
+    })()
+    return new LayoutProvider(() => 'a', (_, dim) => {dim.width = d[0]; dim.height = d[1]})
+  }, [viewMode, screenWidth])
 
   useEffect(() => {queue === null && qAccess && refreshQueue()}, [qAccess, queue, refreshQueue])
 
@@ -84,7 +86,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       return allGenres
   }, [inclFilters, showUnincluded, srchTerms, genres]);
 
-  const dataProviderRef = useRef(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id))
+  const dataProviderRef = useRef(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id || r1.selected !== r2.selected))
   const [displaySongs, dataProvider] = useMemo<[EnhancedSongListItem[], DataProvider]>(() => {
     if (!songlist) return [[], dataProviderRef.current]
     let newDisplaySongs = genresToShow.flatMap(g => songlist[g])
@@ -103,10 +105,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       newDisplaySongs = newDisplaySongs.filter(gtlt === '>' ? (({y}) => y && y > year) : (({y}) => y && y < year))
     }
     newDisplaySongs = newDisplaySongs.filter((s) => {const sl = (s.id+(s.a??'')+(s.c??'')+(s.s??'')).toLowerCase(); return srchTerms.every(t => sl.includes(t))})
+    if (shownSelectedSong) {
+      const i = newDisplaySongs.findIndex(s => s.id === shownSelectedSong)
+      if (i !== -1) newDisplaySongs[i] = {...newDisplaySongs[i], selected: true}
+    }
 
     dataProviderRef.current = dataProviderRef.current.cloneWithRows(newDisplaySongs)
     return [newDisplaySongs, dataProviderRef.current]
-  }, [genresToShow, songlist, srchTerms, langFilter, yearFilter, singstarFilter, inclFilters]);
+  }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, shownSelectedSong, inclFilters, srchTerms]);
 
   const searchBox = 
     <div className='input-block pane searchbox'>
@@ -266,7 +272,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
               style={{width: '100%', height: '100%'}}
               rowRenderer={(_, s: EnhancedSongListItem, i) => (
                 <li
-                  className={`song-item clickable ${selectedSong === s.id ? 'selected' : ''}`}
+                  className={`song-item clickable ${s.selected ? 'selected' : ''}`}
                   key={`${i}-s`}
                   onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}
                 >
