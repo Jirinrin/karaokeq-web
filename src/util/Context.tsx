@@ -40,7 +40,7 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   const [userName, setUserName] = useState(localStorage.getItem('username') ?? '')
   const [queue, setQueue] = useState<Q|null>(null)
 
-  const domain = useLocation().pathname.match(/(?<=^\/)[^/]+/)?.[0]
+  const domain = useLocation().pathname.match(/^\/([^/]+)/)?.[1]
   const songlistName = domain === 'songlist' ? 'songlist' : SONGLISTS_BY_DOMAIN[domain ?? ''] ?? 'songlist'
   useEffect(() => {
     fetch(`/${songlistName}.json`).then(r => r.json())
