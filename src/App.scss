@@ -203,6 +203,10 @@ button, .link-btn {
     bottom: 14px;
     max-width: 80vw;
     width: min(400px, 100vw - 90px);
+    pointer-events: none;
+    > .pane {
+      pointer-events: all;
+    }
     .close-btn {
       position: absolute;
       padding: 1px 6px;
