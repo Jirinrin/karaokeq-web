@@ -105,14 +105,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       newDisplaySongs = newDisplaySongs.filter(gtlt === '>' ? (({y}) => y && y > year) : (({y}) => y && y < year))
     }
     newDisplaySongs = newDisplaySongs.filter((s) => {const sl = (s.id+(s.a??'')+(s.c??'')+(s.s??'')).toLowerCase(); return srchTerms.every(t => sl.includes(t))})
-    if (shownSelectedSong) {
-      const i = newDisplaySongs.findIndex(s => s.id === shownSelectedSong)
+    if (selectedSong) {
+      const i = newDisplaySongs.findIndex(s => s.id === selectedSong)
       if (i !== -1) newDisplaySongs[i] = {...newDisplaySongs[i], selected: true}
     }
 
     dataProviderRef.current = dataProviderRef.current.cloneWithRows(newDisplaySongs)
     return [newDisplaySongs, dataProviderRef.current]
-  }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, shownSelectedSong, inclFilters, srchTerms]);
+  }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, selectedSong, inclFilters, srchTerms]);
 
   const searchBox = 
     <div className='input-block pane searchbox'>
