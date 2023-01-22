@@ -212,6 +212,9 @@ button, .link-btn {
         content: '×';
       }
     }
+    > * {
+      box-shadow: 0px 0px 30px black;
+    }
   }
   &.scroll-to-top, &.select-random {
     z-index: 1;
