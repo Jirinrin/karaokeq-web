@@ -56,10 +56,13 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const layoutProvider = useMemo<LayoutProvider>(() => {
     const d: [w:number,h:number] = (() => {
       if (viewMode === 'list') return [800,33]
-      if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
-      if (screenWidth < 800) return [0.42*screenWidth, 0.28*screenWidth]
-      if (screenWidth < 1000) return [0.3*screenWidth, 0.28*screenWidth]
-      return [300,330]
+      const listW = screenWidth < 1090 ? screenWidth-40 : 1060-5
+      if (screenWidth < 600)   // 1 col
+        return [listW, listW*0.4]
+      if (screenWidth < 800) // 2 cols
+        return [listW/2,listW*0.3]
+      else                 // 3 cols
+        return [listW/3,listW*0.3]
     })()
     return new LayoutProvider(() => 'a', (_, dim) => {dim.width = d[0]; dim.height = d[1]})
   }, [viewMode, screenWidth])
