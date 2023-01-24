@@ -115,12 +115,21 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     return [newDisplaySongs, dataProviderRef.current]
   }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, selectedSong, inclFilters, srchTerms]);
 
+  const searchFocused = useRef(false)
   const searchBox = 
     <div className='input-block pane searchbox'>
       <label htmlFor='searchbox'> 🔍 Search:</label>
       <div className="input-wrapper">
-        <DebounceInput id="searchbox" minLength={1} debounceTimeout={50} onChange={e => setSrch(e.target.value)} value={srch} placeholder="Search query" />
-        <button className='clear-btn' onClick={() => {setSrch(''); document.getElementById('searchbox')?.focus()}}>×</button>
+        <DebounceInput
+          id="searchbox"
+          minLength={1}
+          debounceTimeout={50}
+          onChange={e => setSrch(e.target.value)}
+          onFocus={() => searchFocused.current = true}
+          onBlur={e => {if (!e.relatedTarget?.classList.contains('clear-btn')) searchFocused.current = false}}
+          value={srch} placeholder="Search query"
+        />
+        <button className='clear-btn' onClick={(e) => {setSrch(''); if (searchFocused.current) document.getElementById('searchbox')?.focus()}}>×</button>
       </div>
     </div>
 
