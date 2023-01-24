@@ -182,6 +182,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     if (srchTerms.length && !scrolledToBottom.current) scrollToPct(1)
   }, [selectedSong, srchTerms])
 
+  const openAddSongModal = () => setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})
+
   return (
     // oh-snap is only set after initial page load, because otherwise it'll sometimes randomly snap to the bottom
     <div className={`Songlist page ${initialLoaded ? 'oh-snap' : ''}`} ref={pageRef}>
@@ -267,14 +269,16 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         >
           Songs <span>{displaySongs.length}</span>{' '}
           <button className='song-title-btn' onClick={e => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
-          <button className='song-title-btn' onClick={e => {e.stopPropagation(); setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})}}><em>ADD</em></button>
+          <button className='song-title-btn' onClick={e => {e.stopPropagation(); openAddSongModal()}}><em>ADD</em></button>
         </h2>
         <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`} style={{width: '100%', height: screenHeight-160}}>
           {displaySongs.length > 0 &&
             <RecyclerListView
               onScroll={(_e, _x, y) => onScrollRecyclerList(y)}
               layoutProvider={layoutProvider}
-              renderFooter={() => <div style={{height: 55}}></div>}
+              renderFooter={() => <div className='songlist-footer'>
+                <button onClick={openAddSongModal}>Can't find the song you're looking for?</button>
+              </div>}
               dataProvider={dataProvider}
               ref={songlistRef}
               canChangeSize
