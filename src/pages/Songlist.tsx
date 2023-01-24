@@ -57,6 +57,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     const d: [w:number,h:number] = (() => {
       if (viewMode === 'list') return [800,33]
       const listW = screenWidth < 1090 ? screenWidth-40 : 1060-5
+      if (screenWidth < 460)     // 1 col with at least kinda visible cover
+        return [listW, listW*0.48]
       if (screenWidth < 600)   // 1 col
         return [listW, listW*0.4]
       if (screenWidth < 800) // 2 cols
