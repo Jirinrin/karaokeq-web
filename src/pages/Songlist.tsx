@@ -153,11 +153,11 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const [songlistScrolled, setSonglistScrolled] = useState(false)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
   const scrollToPct = (pct: 0|1, smooth = true) =>
-    pct ? pageRef.current?.scrollBy({top: 1, behavior: smooth ? 'smooth' : 'auto'}) : pageRef.current?.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'})
+    pct ? pageRef.current?.scrollTo({top: pageRef.current.scrollHeight, behavior: smooth ? 'smooth' : 'auto'}) : pageRef.current?.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'})
 
   const [initialLoaded, setInitialLoaded] = useState(false)
   useEffect(() => {setInitialLoaded(true); scrollToPct(0)}, [])
-  useEffect(() => {scrollToPct(0); setSelectedSong(null)}, [genresToShow, showUnincluded, singstarFilter])
+  useEffect(() => {scrollToPct(0); setSelectedSong(null)}, [inclFilters, showUnincluded, singstarFilter])
 
   useScrollPosition(({ currPos }) => {
     if (!pageRef.current) return

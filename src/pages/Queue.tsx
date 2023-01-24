@@ -97,7 +97,6 @@ export default function Queue() {
     </div>
   )
 
-
   function renderItem(s: QItem, i: number) {
     return (
       <li className={`song-item ${i === 0 ? 'first-item' : i === 1 ? 'second-item' : ''}`} key={s.id}>
