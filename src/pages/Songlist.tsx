@@ -150,8 +150,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const onScrollRecyclerList = (y: number) => {
     if (y > 0 && !songlistScrolled) setSonglistScrolled(true)
     else if (y <= 0 && songlistScrolled) setSonglistScrolled(false)
-    if (y > 400 && !songlistScrolled) setShowScrollToTop(true)
-    else if (y <= 400 && songlistScrolled) setShowScrollToTop(false)
+    if (y > 400 && !showScrollToTop) setShowScrollToTop(true)
+    else if (y <= 400 && showScrollToTop) setShowScrollToTop(false)
     if (!scrolledToBottom.current) {scrollToPct(1, false)}
   }
 
@@ -170,7 +170,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
               {searchBox}
               <NameWidget />
             </div>
-            <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
+            <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK</Link>
           </>}
 
           <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
