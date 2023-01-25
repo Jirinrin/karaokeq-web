@@ -277,7 +277,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           <button className='song-title-btn' onClick={e => {e.stopPropagation(); openAddSongModal()}}><em>ADD</em></button>
         </h2>
         <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`} style={{width: '100%', height: screenHeight-160}}>
-          {displaySongs.length > 0 &&
+          {initialLoaded &&
             <RecyclerListView
               onScroll={(_e, _x, y) => onScrollRecyclerList(y)}
               layoutProvider={layoutProvider}
