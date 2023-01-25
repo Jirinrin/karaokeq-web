@@ -499,8 +499,10 @@ em {
       transition: color .3s ease;
     }
     &.first-item {
-      .song-name.selected {
+      .song-name {
         border: solid #00000026 1px;
+      }
+      .song-name.selected {
         background-color: rgba(255, 255, 255, 0.386);
         backdrop-filter: brightness(3) contrast(2) blur(5px);
       }

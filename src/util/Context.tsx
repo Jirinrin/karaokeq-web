@@ -39,7 +39,9 @@ function _useAppContext() {
   const [queue, setQueue] = useState<Q|null>(null)
   const [config, _setConfig] = useState<Config|null>(null)
 
-  const api = _useApi(domain ?? '', userName, adminToken)
+  const [alert, setAlert] = useState<Alert|null>(null)
+
+  const api = _useApi(domain ?? '', userName, adminToken, setAlert)
 
   const refreshConfig = useCallback(() => api('get', 'config').then(c => _setConfig(c)), [api])
 
@@ -66,7 +68,6 @@ function _useAppContext() {
 
   const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tiled') ? 'tiled' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
 
-  const [alert, setAlert] = useState<Alert|null>(null)
 
   useEffect(() => { localStorage.setItem('username', userName) }, [userName])
   useEffect(() => { adminToken && localStorage.setItem(`admintoken_${domain}`, adminToken) }, [adminToken, domain])

@@ -10,9 +10,10 @@ export const BackgroundPict = (p: {pict: BgPicture|null}) => {
   const sharedProps = {src: bgPict?.[0], style: {filter: bgPict?.[1]}, onError: () => setBgPict(BG_VIDEOS[0]), className: 'bg-pict fade-in-appear'}
 
   return <>
-    {bgPict && (bgPict[0].match(/jpg|png|webp$/)
-      ? <img {...sharedProps} alt='background' />
-      : <video {...sharedProps} autoPlay muted loop />
+    {bgPict && (
+      bgPict[0].match(/jpg|png|webp$/)
+        ? <img {...sharedProps} alt='background' />
+        : <video {...sharedProps} autoPlay muted loop />
     )}
   </>
 }
