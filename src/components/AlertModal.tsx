@@ -1,6 +1,9 @@
+import { ReactNode } from "react";
+
 export type Alert = {
   title: string
   superTitle?: string
+  body?: ReactNode
   class?: string
 } & ({type: 'notify'} | {type: 'confirm'; confirmLabel?: string; onConfirm: () => void} | {type: 'menu', btns: [string, () => void][]});
 
@@ -15,6 +18,7 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
         {alert ? (<>
           {alert.superTitle && <p>{alert.superTitle}</p>}
           <h2>{alert.title}</h2>
+          {alert.body}
           {btns(alert)}
         </>) : <div></div>}
       </div>

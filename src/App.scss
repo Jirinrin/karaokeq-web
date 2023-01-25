@@ -76,6 +76,21 @@ button, .link-btn {
   }
 }
 
+.songlist-footer {
+  height: 100px;
+  button {
+    border: none;
+    margin: 20px 0;
+    margin-left: 8px;
+    padding: 4px 20px;
+    font-style: italic;
+    opacity: 0.7;
+    &:hover {
+      background-color: rgb(62, 62, 62);
+    }
+  }
+}
+
 .link-btn {
   background-color: #121212a3;
   padding: 9px 13px;
@@ -149,7 +164,7 @@ button, .link-btn {
 }
 
 .modal-dialog-thing {
-  transition: all .5s ease;
+  transition: transform .5s ease, opacity .3s ease;
   position: fixed;
   z-index: 1;
 
@@ -203,6 +218,10 @@ button, .link-btn {
     bottom: 14px;
     max-width: 80vw;
     width: min(400px, 100vw - 90px);
+    pointer-events: none;
+    > .pane {
+      pointer-events: all;
+    }
     .close-btn {
       position: absolute;
       padding: 1px 6px;
@@ -211,6 +230,9 @@ button, .link-btn {
       &::before {
         content: '×';
       }
+    }
+    > * {
+      box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.733);
     }
   }
   &.scroll-to-top, &.select-random {
@@ -245,6 +267,7 @@ button, .link-btn {
   text-align: center;
   transform: translate(-50%, -50%);
   z-index: 2;
+  padding-top: 15px;
   border-radius: 10px;
   backdrop-filter: blur(10px);
   background-color: rgba(255, 255, 255, 0.363);
@@ -253,6 +276,24 @@ button, .link-btn {
     font-size: 1.3rem;
     // color: white;
     // text-shadow: 0px 3px 0px black;
+  }
+  p {
+    margin-top: 10px;
+    font-size: 0.7rem;
+    a {
+      color: white;
+      @keyframes pulse-bw {
+        to {color: rgb(206, 206, 206)}
+      }
+      text-decoration: none;
+      letter-spacing: .1rem;
+      animation: pulse-bw .2s infinite alternate;
+      font-style: italic;
+      &:hover {
+        color: white;
+        animation: none;
+      }
+    }
   }
 
   &.invisible {
@@ -603,11 +644,11 @@ h2.songs-title {
   font-size: 12px;
 }
 
-.view-toggle {
+.song-title-btn {
   border: none;
   margin: 0;
+  margin-left: 8px;
   padding: 4px 8px;
-  margin-top: 12px;
 }
 
 .ReactCollapse--collapse {

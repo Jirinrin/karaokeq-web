@@ -23,7 +23,7 @@ export type SongListItem = {
   // /** genre */
   // g?: string
 }
-export type EnhancedSongListItem = SongListItem & {g: Genre}
+export type EnhancedSongListItem = SongListItem & {g: Genre, selected?: true}
 /** folder structure */
 export type SongList = Record<string, SongListItem[]>
 export type EnhancedSongList = Record<string, EnhancedSongListItem[]>

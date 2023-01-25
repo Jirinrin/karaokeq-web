@@ -29,7 +29,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const api = useApi()
   const refreshQueue = useRefreshQueue()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, addSongNoticeOpened, setAddSongNoticeOpened, genres, songlist} = useAppContext()
+  const {queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, genres, songlist} = useAppContext()
   const navigate = useNavigate()
   const {width: screenWidth, height: screenHeight} = useWindowSize()
   
@@ -47,19 +47,27 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const westKeys = genres.filter((k) => k.startsWith('w-'))
   const showWestEast = weebKeys.length > 0 && westKeys.length > 0
   const showUnincludedFilter = !!songlist?.unincluded
+  const showSingstarFilter = useMemo(() => !!Object.values(songlist ?? {}).flat().find(s => s.e === 's'), [songlist])
   const genreToColor = useMemo(() => Object.fromEntries(genres.map((g,i) => [g, COLORS[i]])), [genres])
-
-  const d = useMemo<[w:number,h:number]>(() => {
-    if (viewMode === 'list') return [800,33]
-    if (screenWidth < 600) return [0.8*screenWidth, 0.4*screenWidth]
-    if (screenWidth < 800) return [0.42*screenWidth, 0.28*screenWidth]
-    if (screenWidth < 1000) return [0.3*screenWidth, 0.28*screenWidth]
-    return [300,330]
-  }, [viewMode, screenWidth])
-  const layoutProvider = new LayoutProvider(() => 'a', (_, dim) => {dim.width = d[0]; dim.height = d[1]})
 
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
   const shownSelectedSong = useLastNonNull(selectedSong)
+
+  const layoutProvider = useMemo<LayoutProvider>(() => {
+    const d: [w:number,h:number] = (() => {
+      if (viewMode === 'list') return [800,33]
+      const listW = screenWidth < 1090 ? screenWidth-40 : 1060-5
+      if (screenWidth < 460)     // 1 col with at least kinda visible cover
+        return [listW, listW*0.48]
+      if (screenWidth < 600)   // 1 col
+        return [listW, listW*0.4]
+      if (screenWidth < 800) // 2 cols
+        return [listW/2,listW*0.3]
+      else                 // 3 cols
+        return [listW/3,listW*0.3]
+    })()
+    return new LayoutProvider(() => 'a', (_, dim) => {dim.width = d[0]; dim.height = d[1]})
+  }, [viewMode, screenWidth])
 
   useEffect(() => {queue === null && qAccess && refreshQueue()}, [qAccess, queue, refreshQueue])
 
@@ -84,7 +92,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       return allGenres
   }, [inclFilters, showUnincluded, srchTerms, genres]);
 
-  const dataProviderRef = useRef(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id))
+  const dataProviderRef = useRef(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id || r1.selected !== r2.selected))
   const [displaySongs, dataProvider] = useMemo<[EnhancedSongListItem[], DataProvider]>(() => {
     if (!songlist) return [[], dataProviderRef.current]
     let newDisplaySongs = genresToShow.flatMap(g => songlist[g])
@@ -103,25 +111,44 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       newDisplaySongs = newDisplaySongs.filter(gtlt === '>' ? (({y}) => y && y > year) : (({y}) => y && y < year))
     }
     newDisplaySongs = newDisplaySongs.filter((s) => {const sl = (s.id+(s.a??'')+(s.c??'')+(s.s??'')).toLowerCase(); return srchTerms.every(t => sl.includes(t))})
+    if (selectedSong) {
+      const i = newDisplaySongs.findIndex(s => s.id === selectedSong)
+      if (i !== -1) newDisplaySongs[i] = {...newDisplaySongs[i], selected: true}
+    }
 
     dataProviderRef.current = dataProviderRef.current.cloneWithRows(newDisplaySongs)
     return [newDisplaySongs, dataProviderRef.current]
-  }, [genresToShow, songlist, srchTerms, langFilter, yearFilter, singstarFilter, inclFilters]);
+  }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, selectedSong, inclFilters, srchTerms]);
 
+  const searchFocused = useRef(false)
   const searchBox = 
     <div className='input-block pane searchbox'>
       <label htmlFor='searchbox'> 🔍 Search:</label>
       <div className="input-wrapper">
-        <DebounceInput id="searchbox" minLength={1} debounceTimeout={50} onChange={e => setSrch(e.target.value)} value={srch} placeholder="Search query" />
-        <button className='clear-btn' onClick={() => {setSrch(''); document.getElementById('searchbox')?.focus()}}>×</button>
+        <DebounceInput
+          id="searchbox"
+          minLength={1}
+          debounceTimeout={50}
+          onChange={e => setSrch(e.target.value)}
+          onFocus={() => searchFocused.current = true}
+          onBlur={e => {if (!e.relatedTarget?.classList.contains('clear-btn')) searchFocused.current = false}}
+          value={srch} placeholder="Search query"
+        />
+        <button className='clear-btn' onClick={(e) => {setSrch(''); if (searchFocused.current) document.getElementById('searchbox')?.focus()}}>×</button>
       </div>
     </div>
 
   const [filtersOpened, setFiltersOpened] = useState(true)
-  const unincluded = useMemo(() => songlist?.unincluded?.map(s => s.id), [songlist?.unincluded])
 
-  const selectedSongAlreadyInQ = !!queue?.find(s => s.id === shownSelectedSong)
-  const selectedSongIsUnincluded = useMemo(() => shownSelectedSong !== null && unincluded?.includes(shownSelectedSong), [shownSelectedSong, unincluded])
+  const unableToRequestReason: string|null = useMemo(() => {
+    if (!shownSelectedSong)
+      return null
+    if (queue?.find(s => s.id === shownSelectedSong))
+      return 'SONG ALREADY IN QUEUE'
+    if (songlist?.unincluded?.map(s => s.id).includes(shownSelectedSong))
+      return 'SONG UNAVAILABLE'
+    return null
+  }, [queue, shownSelectedSong, songlist?.unincluded])
 
   const pageRef = useRef<HTMLDivElement>(null)
   const songsWrapperRef = useRef<HTMLDivElement>(null)
@@ -131,10 +158,11 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const [songlistScrolled, setSonglistScrolled] = useState(false)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
   const scrollToPct = (pct: 0|1, smooth = true) =>
-    pct ? pageRef.current?.scrollBy({top: 1, behavior: smooth ? 'smooth' : 'auto'}) : pageRef.current?.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'})
+    pct ? pageRef.current?.scrollTo({top: pageRef.current.scrollHeight, behavior: smooth ? 'smooth' : 'auto'}) : pageRef.current?.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'})
 
   const [initialLoaded, setInitialLoaded] = useState(false)
-  useEffect(() => {setInitialLoaded(true); scrollToPct(0)}, [genresToShow, singstarFilter])
+  useEffect(() => {setInitialLoaded(true); scrollToPct(0)}, [])
+  useEffect(() => {scrollToPct(0); setSelectedSong(null)}, [inclFilters, showUnincluded, singstarFilter])
 
   useScrollPosition(({ currPos }) => {
     if (!pageRef.current) return
@@ -157,7 +185,9 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   useEffect(() => {
     if (srchTerms.length && !scrolledToBottom.current) scrollToPct(1)
-  }, [srchTerms])
+  }, [selectedSong, srchTerms])
+
+  const openAddSongModal = () => setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})
 
   return (
     // oh-snap is only set after initial page load, because otherwise it'll sometimes randomly snap to the bottom
@@ -166,7 +196,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       <div className="page-body">
         <div className='sticky-section'>
           {qAccess && <>
-            <div className="input-block-flekz">
+            <div className="input-block-flekz" onFocus={() => selectedSong && setSelectedSong(null)}>
               {searchBox}
               <NameWidget />
             </div>
@@ -175,8 +205,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
           <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
             {qAccess &&
-              <button className='link-btn' disabled={selectedSongAlreadyInQ || selectedSongIsUnincluded} onClick={() => selectedSong && requestSong(selectedSong)}>
-                {selectedSongAlreadyInQ ? 'SONG ALREADY IN QUEUE' : selectedSongIsUnincluded ? 'SONG UNAVAILABLE' : 'REQUEST SONG'}
+              <button className='link-btn' disabled={!!unableToRequestReason} onClick={() => selectedSong && requestSong(selectedSong)}>
+                {unableToRequestReason ?? 'REQUEST SONG'}
               </button>
             }
           </SelectedSongModal>
@@ -186,7 +216,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           <button className='link-btn' onClick={() => {
             const i = Math.floor(Math.random()*displaySongs.length)
             setSelectedSong(displaySongs[i].id)
-            songlistRef.current?.scrollToIndex(Math.max(i-3, 0), true)
+            songlistRef.current?.scrollToIndex(Math.max(i-(viewMode === 'tiled' ? 1 : 3), 0), true)
             if (!scrolledToBottom.current) scrollToPct(1)
           }}>
             🎲
@@ -212,10 +242,12 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
                   <label htmlFor={`filter-${g}`}>{g}</label>
                 </span>
               )}
-              <span style={{backgroundColor: '#DDDDDD'}} className='category-filter'>
-                <input id={`filter-singstar`} type="checkbox" checked={singstarFilter} onChange={e => setSingstarFilter(!singstarFilter)} />
-                <label htmlFor={`filter-singstar`}><em>singstar</em></label>
-              </span>
+              {showSingstarFilter &&
+                <span style={{backgroundColor: '#DDDDDD'}} className='category-filter'>
+                  <input id={`filter-singstar`} type="checkbox" checked={singstarFilter} onChange={e => setSingstarFilter(!singstarFilter)} />
+                  <label htmlFor={`filter-singstar`}><em>singstar</em></label>
+                </span>
+              }
               {showWestEast && <>
                 <span style={{backgroundColor: 'white'}} className='category-filter'>
                   <input id={`filter-west`} type="checkbox" checked={westKeys.every(k => inclFilters[k])} onChange={e => setInclFilters(westKeys.reduce((acc, k) => ({...acc, [k]: e.target.checked}), inclFilters))} />
@@ -236,38 +268,31 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           </Collapse>
         </div>
 
-        <Collapse isOpened={addSongNoticeOpened}>
-          <div className='notice'>
-            <h4>
-              Can't find a song? Go ahead and add it to <a href={SPOTIFYURL} target="_blank" rel="noreferrer">this Spotify playlist</a>, and I'll go ahead and try to get it into the game!<br/>
-              Or if you got ultrastar files for me: even better! You can drop those <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">in here</a>!
-              <button onClick={() => setAddSongNoticeOpened(false)}>Dismiss</button>
-            </h4>
-          </div>
-        </Collapse>
-
         <h2
           className={`songs-title ${songlistScrolled ? 'with-border' : ''} ${viewMode === 'tiled' ? 'align-centerr' : ''}`}
           onClick={() => scrollToPct(scrolledToBottom.current ? 0 : 1)}
         >
           Songs <span>{displaySongs.length}</span>{' '}
-          <button className='view-toggle' onClick={(e) => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
+          <button className='song-title-btn' onClick={e => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
+          <button className='song-title-btn' onClick={e => {e.stopPropagation(); openAddSongModal()}}><em>ADD</em></button>
         </h2>
         <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`} style={{width: '100%', height: screenHeight-160}}>
           {displaySongs.length > 0 &&
             <RecyclerListView
               onScroll={(_e, _x, y) => onScrollRecyclerList(y)}
               layoutProvider={layoutProvider}
-              renderFooter={() => <div style={{height: 55}}></div>}
+              renderFooter={() => <div className='songlist-footer'>
+                <button onClick={openAddSongModal}>Can't find the song you're looking for?</button>
+              </div>}
               dataProvider={dataProvider}
               ref={songlistRef}
               canChangeSize
               style={{width: '100%', height: '100%'}}
               rowRenderer={(_, s: EnhancedSongListItem, i) => (
                 <li
-                  className={`song-item clickable ${selectedSong === s.id ? 'selected' : ''}`}
+                  className={`song-item clickable ${s.selected ? 'selected' : ''}`}
                   key={`${i}-s`}
-                  onClick={() => setSelectedSong(selectedSong === s.id ? null : s.id)}
+                  onClick={() => setSelectedSong(ss => ss === s.id ? null : s.id)}
                 >
                   {viewMode === 'tiled' &&
                     <div className="img-wrapper">
@@ -287,5 +312,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       </div>
       <div className="snap-end" />
     </div>
+  )
+}
+
+function addSongNotice() {
+  return (
+    <p>
+      Can't find a song? Go ahead and add it to <br/> <a href={SPOTIFYURL} target="_blank" rel="noreferrer">this Spotify playlist</a> <br/> and it may be added!<br/>
+      {/* Or if you got ultrastar files for me: even better! You can drop those <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">in here</a>! */}
+    </p>
   )
 }
