@@ -9,14 +9,13 @@ import { SongName } from "../components/SongName";
 import { useAppContext } from "../util/Context";
 import { sessionToken, useApi, useRefreshQueue } from "../util/api";
 import { useLastNonNull } from "../util/hoox";
-import { Config, QItem } from "../util/types";
+import { QItem } from "../util/types";
 
 export default function Queue() {
-  const {queue, setQueue, setAlert, adminToken} = useAppContext()
+  const {queue, setQueue, setAlert, adminToken, config, setConfig} = useAppContext()
   const api = useApi()
   const refreshQueue = useRefreshQueue()
   const {domain} = useParams()
-  const [config, setConfig] = useState<Config|null>(null)
   const isAdmin = useMemo(() => !!adminToken, [adminToken])
   const [selectedSong, setSelectedSong] = useState<string|null>(null)
 
@@ -37,20 +36,12 @@ export default function Queue() {
     return () => clearInterval(refreshInterval.current)
   }, [refreshQueue])
 
-  const refreshConfig = useCallback(() => api('get', 'config').then(c => setConfig(c)), [api])
-  const setConfigPartial = useCallback(async (c: Partial<Config>) => {
-    await api('patch', 'config', c)
-    setConfig(cc => cc && ({...cc, ...c}))
-    setTimeout(refreshConfig, 30000)
-  }, [api, refreshConfig])
-
-  useEffect(() => { isAdmin && refreshConfig() }, [isAdmin, refreshConfig])
 
   function openAdminMenu() {
     const btns: [string, () => void][] = [
       ['Reset Q', () => {setAlert({type: 'confirm', title: 'Really reset the entire queue?', onConfirm: () => api('post', 'reset').then(setQueue)})}],
-      [`Set rate limit (current: ${config?.requestRateLimitMins} mins)`, () => {const mins = prompt('How many minutes?'); mins && setConfigPartial({requestRateLimitMins: Number(mins)})}],
-      [`Set waiting vote bonus (current: ${config?.waitingVoteBonus})`, () => {const v = prompt('How many votes?'); v && setConfigPartial({waitingVoteBonus: Number(v)})}]
+      [`Set rate limit (current: ${config?.requestRateLimitMins} mins)`, () => {const mins = prompt('How many minutes?'); mins && setConfig({requestRateLimitMins: Number(mins)})}],
+      [`Set waiting vote bonus (current: ${config?.waitingVoteBonus})`, () => {const v = prompt('How many votes?'); v && setConfig({waitingVoteBonus: Number(v)})}]
       // todo: change admin key
       // todo: DELETE ENTIRE QUEUE
     ]
@@ -59,12 +50,12 @@ export default function Queue() {
   return (
     <div className="Queue page">
       <div className="page-body">
-        <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
+        <SelectedSongModal selectedSong={selectedSong} unsetSelectedSong={() => setSelectedSong(null)}>
           <div style={{display: 'flex', gap: 8}}>
           <button
             className="link-btn"
             disabled={shownSelectedQItemIndex < 2 || !selectedQItem || (!isAdmin && !!selectedQItem.votes.find(v => v.includes(sessionToken))) }
-            onClick={(e) => {e.stopPropagation(); selectedQItem && vote(selectedQItem.id); setSelectedSong(null)}}
+            onClick={(e) => {e.stopPropagation(); selectedQItem && vote(selectedQItem.id); setTimeout(() => setSelectedSong(null), 700)}}
           >
             {!selectedQItem || shownSelectedQItemIndex < 2 ? 'VOTING DISABLED'
               : selectedQItem.votes.find(v => v.includes(sessionToken))

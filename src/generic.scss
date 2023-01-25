@@ -3,7 +3,7 @@
 }
 
 body {
-  background-color: rgb(44, 44, 44);
+  background-color: black;
   position: relative;
   height: 100%;
   width: 100vw;
@@ -47,3 +47,46 @@ body {
 ul {
   padding-left: 0;
 }
+
+button {
+  border: none;
+}
+
+select {
+  appearance: none;
+  border: none;
+  transition: background-color .4s;
+  border-radius: 6px;
+  background-color: black;
+  padding: 8px 16px;
+  cursor: pointer;
+  &:hover {
+    background-color: rgb(39, 39, 39);
+  }
+}
+
+input {
+  background-color: rgba(12, 12, 12, 0.7);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  text-overflow: clip;
+}
+
+.flex-row {
+  display: flex;
+  gap: 8px;
+  &.wrap {
+    flex-wrap: wrap;
+  }
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+

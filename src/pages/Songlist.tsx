@@ -93,8 +93,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   }, [inclFilters, showUnincluded, srchTerms, genres]);
 
   const dataProviderRef = useRef(new DataProvider((r1: EnhancedSongListItem, r2: EnhancedSongListItem) => r1.id !== r2.id || r1.selected !== r2.selected))
-  const [displaySongs, dataProvider] = useMemo<[EnhancedSongListItem[], DataProvider]>(() => {
-    if (!songlist) return [[], dataProviderRef.current]
+  const [displaySongs, dataProvider, selectedSongItem] = useMemo<[EnhancedSongListItem[], DataProvider, EnhancedSongListItem|null]>(() => {
+    if (!songlist) return [[], dataProviderRef.current, null]
     let newDisplaySongs = genresToShow.flatMap(g => songlist[g])
 
     if (singstarFilter) {
@@ -111,13 +111,14 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       newDisplaySongs = newDisplaySongs.filter(gtlt === '>' ? (({y}) => y && y > year) : (({y}) => y && y < year))
     }
     newDisplaySongs = newDisplaySongs.filter((s) => {const sl = (s.id+(s.a??'')+(s.c??'')+(s.s??'')).toLowerCase(); return srchTerms.every(t => sl.includes(t))})
+    let selectedItemIndex = -1
     if (selectedSong) {
-      const i = newDisplaySongs.findIndex(s => s.id === selectedSong)
-      if (i !== -1) newDisplaySongs[i] = {...newDisplaySongs[i], selected: true}
+      selectedItemIndex = newDisplaySongs.findIndex(s => s.id === selectedSong)
+      if (selectedItemIndex !== -1) newDisplaySongs[selectedItemIndex] = {...newDisplaySongs[selectedItemIndex], selected: true}
     }
 
     dataProviderRef.current = dataProviderRef.current.cloneWithRows(newDisplaySongs)
-    return [newDisplaySongs, dataProviderRef.current]
+    return [newDisplaySongs, dataProviderRef.current, newDisplaySongs[selectedItemIndex] ?? null]
   }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, selectedSong, inclFilters, srchTerms]);
 
   const searchFocused = useRef(false)
@@ -203,7 +204,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK</Link>
           </>}
 
-          <SelectedSongModal selectedSong={selectedSong} setSelectedSong={setSelectedSong}>
+          <SelectedSongModal selectedSong={selectedSongItem} unsetSelectedSong={() => setSelectedSong(null)}>
             {qAccess &&
               <button className='link-btn' disabled={!!unableToRequestReason} onClick={() => selectedSong && requestSong(selectedSong)}>
                 {unableToRequestReason ?? 'REQUEST SONG'}

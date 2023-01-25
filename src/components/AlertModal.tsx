@@ -33,7 +33,7 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
   
       case 'confirm':
         return (
-          <div className="btn-row">
+          <div className="flex-row">
             <button className="link-btn secondary" onClick={p.hide}>
               CANCEL
             </button>

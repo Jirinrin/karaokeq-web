@@ -39,24 +39,27 @@ h2.align-center {
   text-align: center;
 }
 
-.bg-video {
+.bg-pict {
   position: fixed;
   z-index: -1;
   top: 50%;
   left: 50vw;
+  background-color: black;
   transform: translate(-50%, -50%);
   min-height: 100%;
   min-width: 100vw;
   margin: 0;
-  filter: brightness(0.5) contrast(1.7);
 }
 
 button, .link-btn {
-  margin-left: 8px;
   border-radius: 6px;
-  border: 1px solid rgb(76, 76, 76);
-  background-color: black;
-  padding: 1.5px 6px;
+  border: 1px solid rgb(76, 76, 76);  background-color: #121212a3;
+  backdrop-filter: blur(5px);
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 13px;
+
   transition: all .3s ease;
   &.secondary {
     background-color: rgb(133, 133, 133);
@@ -92,14 +95,8 @@ button, .link-btn {
 }
 
 .link-btn {
-  background-color: #121212a3;
-  padding: 9px 13px;
-  border-radius: 6px;
   text-decoration: none;
   display: block;
-  border: none;
-  backdrop-filter: blur(5px);
-  font-family: 'M PLUS Rounded 1c', sans-serif;
 
   @media screen and (max-width: 600px) {
     display: block;
@@ -231,6 +228,26 @@ button, .link-btn {
         content: '×';
       }
     }
+    .year-label {
+      font-weight: 100;
+      color: rgba(0, 0, 0, 0.6);
+      letter-spacing: 0;
+      margin-inline-start: 9px;
+      font-size: 12px;
+    }
+    .lang-label {
+      font-weight: 100;
+      background-color: #e5e5e5;
+      color: black;
+      opacity: 0.6;
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      text-transform: uppercase;
+    }
     > * {
       box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.733);
     }
@@ -304,9 +321,7 @@ button, .link-btn {
     background-color: #ffababa8;
   }
 
-  .btn-row {
-    display: flex;
-    gap: 8px;
+  .flex-row {
     justify-content: center;
   }
 
@@ -363,15 +378,9 @@ button, .link-btn {
     }
 
     input {
-      background-color: rgba(12, 12, 12, 0.7);
-      border: none;
-      border-radius: 6px;
-      padding: 10px 40px 10px 15px;
-      font-size: 16px;
       width: 100%;
+      padding: 8px 16px;
       display: block;
-      font-family: 'M PLUS Rounded 1c', sans-serif;
-      text-overflow: clip;
     }
   }
 }
@@ -493,8 +502,7 @@ em {
       .song-name.selected {
         border: solid #00000026 1px;
         background-color: rgba(255, 255, 255, 0.386);
-        backdrop-filter: brightness(4) contrast(2) blur(5px);
-
+        backdrop-filter: brightness(3) contrast(2) blur(5px);
       }
       background-color: rgb(255 255 255 / 42%);
       backdrop-filter: invert(1) brightness(0.9) sepia(1) contrast(1.2) saturate(1.2);
@@ -644,11 +652,14 @@ h2.songs-title {
   font-size: 12px;
 }
 
-.song-title-btn {
-  border: none;
-  margin: 0;
-  margin-left: 8px;
-  padding: 4px 8px;
+h1, h2, h3 {
+  > button {
+    border: none;
+    margin: 0;
+    margin-left: 8px;
+    padding: 4px 8px;
+    vertical-align: middle;
+  }
 }
 
 .ReactCollapse--collapse {
@@ -756,4 +767,14 @@ h2.songs-title {
 
 .admin-buttons {
   margin-top: 14px;
+}
+
+.admin.page {
+  h1 {
+    margin-top: 50px;
+    margin-bottom: 70px;
+  }
+  input {
+    min-width: 250px;
+  }
 }

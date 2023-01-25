@@ -9,10 +9,8 @@ export let API_URL = "https://karaokeq.q42.workers.dev";
 export const sessionToken = localStorage.getItem('session')
   ?? (() => { const s = Math.random().toString(); localStorage.setItem('session', s); return s })()
 
-export function useApi() {
-  const { domain } = useParams()
-  const { userName, adminToken } = useAppContext()
-
+export function _useApi(domain: string, userName: string, adminToken: string|null) {
+  
   return useCallback(async (method: 'get'|'post'|'put'|'patch'|'delete', path: string, body?: any) => {
     let r = req[method](`${API_URL}/${domain}/${path}`)
       .set('Q-Session', sessionToken)
@@ -27,6 +25,12 @@ export function useApi() {
     const resp = await r
     return resp.text && JSON.parse(resp.text)
   }, [domain, userName, adminToken]);
+}
+
+export function useApi() {
+  const { domain } = useParams()
+  const { userName, adminToken } = useAppContext()
+  return _useApi(domain ?? '', userName, adminToken)
 }
 
 export function useRefreshQueue() {
