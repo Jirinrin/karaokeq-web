@@ -186,7 +186,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   useEffect(() => {
     if (srchTerms.length && !scrolledToBottom.current) scrollToPct(1)
-  }, [selectedSong, srchTerms])
+  }, [selectedSong, srchTerms.length])
 
   const openAddSongModal = () => setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})
 
@@ -195,23 +195,25 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     <div className={`Songlist page ${initialLoaded ? 'oh-snap' : ''}`} ref={pageRef}>
       <div className="snap-start"></div>
       <div className="page-body">
-        <div className='sticky-section'>
-          {qAccess && <>
-            <div className="input-block-flekz" onFocus={() => selectedSong && setSelectedSong(null)}>
-              {searchBox}
-              <NameWidget />
+        {qAccess
+          ? <div className='sticky-section'>
+              <div className="input-block-flekz" onFocus={() => selectedSong && setSelectedSong(null)}>
+                {searchBox}
+                <NameWidget />
+              </div>
+              <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK</Link>
             </div>
-            <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK</Link>
-          </>}
+          : <div className='sticky-section anon'>{searchBox}</div>
+        }
+        <div className="spacer"></div>
 
-          <SelectedSongModal selectedSong={selectedSongItem} unsetSelectedSong={() => setSelectedSong(null)}>
-            {qAccess &&
-              <button className='link-btn' disabled={!!unableToRequestReason} onClick={() => selectedSong && requestSong(selectedSong)}>
-                {unableToRequestReason ?? 'REQUEST SONG'}
-              </button>
-            }
-          </SelectedSongModal>
-        </div>
+        <SelectedSongModal selectedSong={selectedSongItem} unsetSelectedSong={() => setSelectedSong(null)}>
+          {qAccess &&
+            <button className='link-btn' disabled={!!unableToRequestReason} onClick={() => selectedSong && requestSong(selectedSong)}>
+              {unableToRequestReason ?? 'REQUEST SONG'}
+            </button>
+          }
+        </SelectedSongModal>
 
         <div className={`select-random modal-dialog-thing`}>
           <button className='link-btn' onClick={() => {
@@ -231,7 +233,6 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
         {qAccess && <h1>Songlist</h1>}
         <div className={`sticky-section-backdrop pane`}></div>
-        {!qAccess && <div className='sticky-section anon'>{searchBox}</div>}
         <div className={`filter-section pane ${filtersOpened ? '' : 'collapsed'}`}>
           <h3><button onClick={() => setFiltersOpened(v=>!v)} className='link-btn'>FILTERS</button></h3>
           
