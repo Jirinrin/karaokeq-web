@@ -16,5 +16,5 @@ export const BG_VIDEOS: BgPicture[] = [
     ['production ID_4990235', 'brightness(1) contrast(1.2)'],
     ['production ID_4990241', 'brightness(0.6) contrast(1.3)'],
     ['production ID_4990242', 'brightness(0.5) contrast(1.4)'],
-  ].map(v => [`https://pub-d909a0daa125478d9db850d4da553bc4.r2.dev/video_${v[0]}.mp4`, v[1]] as [string,string])
+  ].map(v => [`https://pub-d909a0daa125478d9db850d4da553bc4.r2.dev/video_${encodeURIComponent(v[0])}.mp4`, v[1]] as [string,string])
 ]
