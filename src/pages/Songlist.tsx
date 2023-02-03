@@ -155,7 +155,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const songsWrapperRef = useRef<HTMLDivElement>(null)
   const songlistRef = useRef<RecyclerListView<RecyclerListViewProps, RecyclerListViewState>>(null)
 
-  const scrolledToBottom = useRef(false)
+  const scrolledToTop = useRef(true)
   const [songlistScrolled, setSonglistScrolled] = useState(false)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
   const scrollToPct = (pct: 0|1, smooth = true) =>
@@ -168,11 +168,11 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   useScrollPosition(({ currPos }) => {
     if (!pageRef.current) return
     const pct = currPos / (pageRef.current.scrollHeight - pageRef.current.clientHeight)
-    scrolledToBottom.current = pct > .99 && currPos > 100
+    scrolledToTop.current = pct <  .01 || currPos < 50
     const cls = document.querySelector('.sticky-section-backdrop')?.classList
     if (cls) {
-      if (cls.contains('shown') && !scrolledToBottom.current) cls.remove('shown')
-      else if (!cls.contains('shown') && scrolledToBottom.current) cls.add('shown')
+      if (cls.contains('shown') && scrolledToTop.current) cls.remove('shown')
+      else if (!cls.contains('shown') && !scrolledToTop.current) cls.add('shown')
     }
   }, [], pageRef)
 
@@ -181,11 +181,11 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
     else if (y <= 0 && songlistScrolled) setSonglistScrolled(false)
     if (y > 400 && !showScrollToTop) setShowScrollToTop(true)
     else if (y <= 400 && showScrollToTop) setShowScrollToTop(false)
-    if (!scrolledToBottom.current) {scrollToPct(1, false)}
+    if (scrolledToTop.current) {scrollToPct(1, false)}
   }
 
   useEffect(() => {
-    if (srchTerms.length && !scrolledToBottom.current) scrollToPct(1)
+    if (srchTerms.length && scrolledToTop.current) scrollToPct(1)
   }, [selectedSong, srchTerms.length])
 
   const openAddSongModal = () => setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})
@@ -220,7 +220,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
             const i = Math.floor(Math.random()*displaySongs.length)
             setSelectedSong(displaySongs[i].id)
             songlistRef.current?.scrollToIndex(Math.max(i-(viewMode === 'tiled' ? 1 : 3), 0), true)
-            if (!scrolledToBottom.current) scrollToPct(1)
+            if (scrolledToTop.current) scrollToPct(1)
           }}>
             🎲
           </button>
@@ -272,7 +272,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
         <h2
           className={`songs-title ${songlistScrolled ? 'with-border' : ''} ${viewMode === 'tiled' ? 'align-centerr' : ''}`}
-          onClick={() => scrollToPct(scrolledToBottom.current ? 0 : 1)}
+          onClick={() => scrollToPct(scrolledToTop.current ? 1 : 0)}
         >
           Songs <span>{displaySongs.length}</span>{' '}
           <button className='song-title-btn' onClick={e => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
