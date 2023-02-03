@@ -17,7 +17,8 @@ export function Admin() {
   const [customBgPictFilter, setCustomBgPictFilter] = useState('brightness(1) contrast(1)')
 
   useEffect(() => {
-    setBgPictIndex(config?.bgPict ? BG_VIDEOS.findIndex(v => v[0] === config.bgPict?.[0]) : 0)
+    BG_VIDEOS.forEach(v => console.log(JSON.stringify(v)))
+    setBgPictIndex(config?.bgPict ? BG_VIDEOS.findIndex(v => JSON.stringify(v) === JSON.stringify(config.bgPict)) : 0)
     setCustomBgPictUrl(config?.bgPict?.[0] ?? '')
     setCustomBgPictFilter(config?.bgPict?.[1] ?? 'brightness(1) contrast(1)')
   }, [config])
