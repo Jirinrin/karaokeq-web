@@ -36,6 +36,10 @@ export default function Queue() {
     return () => clearInterval(refreshInterval.current)
   }, [refreshQueue])
 
+  useEffect(() => {
+    if (!queue?.find(s => s.id === selectedSong))
+      setSelectedSong(null)
+  }, [queue, selectedSong])
 
   function openAdminMenu() {
     const btns: [string, () => void][] = [
