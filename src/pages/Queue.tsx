@@ -30,10 +30,14 @@ export default function Queue() {
   const vote = useCallback((songId: string) => api('post', 'vote', {songId}).then(setQueue).catch(e => setAlert(errorAlert(e.response.text))), [api, setAlert, setQueue])
 
   useEffect(() => {
-    if (refreshInterval.current) clearInterval(refreshInterval.current)
     refreshQueue()
-    refreshInterval.current = setInterval(refreshQueue, 10000)
-    return () => clearInterval(refreshInterval.current)
+    const clear = () => clearInterval(refreshInterval.current)
+    const set = () => {if (refreshInterval.current) clear(); refreshInterval.current = setInterval(refreshQueue, 10000)}
+    window.addEventListener("focus", set)
+    window.addEventListener("blur", clear)
+    set()
+
+    return () => { clear(); window.removeEventListener("focus", set); window.removeEventListener("blur", clear) }
   }, [refreshQueue])
 
   useEffect(() => {
