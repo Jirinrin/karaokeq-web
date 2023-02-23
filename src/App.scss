@@ -228,7 +228,7 @@ button, .link-btn {
     max-width: 80vw;
     width: min(400px, 100vw - 90px);
     pointer-events: none;
-    > .pane {
+    &:not(.invisible) > .pane {
       pointer-events: all;
     }
     .close-btn {
