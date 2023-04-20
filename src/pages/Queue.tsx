@@ -115,10 +115,10 @@ export default function Queue() {
               onClick={(e) => {e.stopPropagation(); vote(s.id)}}
             >
               {i < 2
-                ? `${votesTxt(s, isAdmin)} ■`
+                ? `${votesTxt(s, true)} ■`
                 : s.votes.find(v => v.includes(sessionToken))
-                  ? `${votesTxt(s, isAdmin)} ❤`
-                  : `Vote (${votesNo(s, isAdmin)})`
+                  ? `${votesTxt(s, true)} ❤`
+                  : `Vote (${votesNo(s, true)})`
               }
             </button>
           </div>
@@ -129,4 +129,4 @@ export default function Queue() {
 }
 
 function votesNo(s: QItem, isAdmin: boolean) { return `${s.votes.length}${isAdmin ? `+${Math.floor(s.waitingVotes*10)/10}` : ''}` }
-function votesTxt(s: QItem, isAdmin: boolean) { return `${votesNo(s, true)} vote${isAdmin || s.votes.length !== 1 ? 's' : ''}` }
+function votesTxt(s: QItem, isAdmin: boolean) { return `${votesNo(s, isAdmin)} vote${isAdmin || s.votes.length !== 1 ? 's' : ''}` }
