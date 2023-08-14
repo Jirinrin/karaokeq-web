@@ -21,9 +21,9 @@ https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=
 `.trim()
 
 const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
-const LANG_RGX = /lang:(\w+)/
-const YEAR_RGX = /year([><]\d+)/
-const SORT_RGX = /sort:(\w+)/
+const LANG_RGX = /lang:(\w*)/
+const YEAR_RGX = /year([><]\d*)/
+const SORT_RGX = /sort:(\w*)/
 
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
@@ -328,10 +328,10 @@ function addSongNotice() {
   )
 }
 
-const VALID_SORT_RGX = /(title|artist|year|lang|genre|source|length|random|added)(_desc)?/
+const VALID_SORT_RGX = /^(title|artist|year|lang|genre|source|length|random|added)(_desc)?/
 
 function sortSongs(songs: EnhancedSongListItem[], sortSpec?: string|null): EnhancedSongListItem[] {
-  const [sortType, desc] = sortSpec?.match(VALID_SORT_RGX) ?? [null, null]
+  const [, sortType, desc] = sortSpec?.match(VALID_SORT_RGX) ?? [null, null]
 
   const s = songs.sort((a,b) => a.id.localeCompare(b.id))
 
