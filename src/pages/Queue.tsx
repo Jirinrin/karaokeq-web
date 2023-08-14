@@ -99,7 +99,7 @@ export default function Queue() {
   function renderItem(s: QItem, i: number) {
     return (
       <li className={`song-item ${i === 0 ? 'first-item' : i === 1 ? 'second-item' : ''}`} key={s.id}>
-        <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0]?.match(/[^_]*/)?.[0] || 'anonymous'})</em></p>
+        <p className="q-item-label">{i === 0 ? 'Now playing' : i === 1 ? 'Next up' : `${i}.`} <em>(requested by {s.votes[0]?.match(/[^_]*/)?.[0] || 'Anonymous'})</em></p>
         <div className="q-item-flex">
           <SongName
             songId={s.id}

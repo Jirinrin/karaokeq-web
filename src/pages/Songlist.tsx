@@ -23,6 +23,7 @@ https://open.spotify.com/playlist/5CDdHeDNZv9ZsnicdWV7cd?si=fb66c225fdb446f3&pt=
 const COLORS = '#77dd77#ff9899#89cff0#f6a6ff#b2fba5#FDFD96#aaf0d1#c1c6fc#bdb0d0#befd73#ff6961#ffb7ce#ca9bf7#ffffd1#c4fafb#fbe4ff#B19CD9#FFDAB9#FFB347#966FD6#b0937b'.match(/#\w{6}/g)!
 const LANG_RGX = /lang:(\w+)/
 const YEAR_RGX = /year([><]\d+)/
+const SORT_RGX = /sort:(\w+)/
 
 export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {domain} = useParams()
@@ -34,11 +35,12 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
   const {width: screenWidth, height: screenHeight} = useWindowSize()
   
   const [srch, setSrch] = useState('')
-  const [srchTerms, langFilter, yearFilter] = useMemo(() => {
+  const [srchTerms, langFilter, yearFilter, sortSpec] = useMemo(() => {
     const langMatch = srch.match(LANG_RGX)?.[1]
     const yearMatch = srch.match(YEAR_RGX)?.[1]
-    const terms = srch.replace(LANG_RGX, '').replace(YEAR_RGX, '').toLowerCase().split(' ').map(t => t.trim()).filter(t => !!t)
-    return [terms, langMatch, yearMatch]
+    const sortMatch = srch.match(SORT_RGX)?.[1]
+    const terms = srch.replace(LANG_RGX, '').replace(YEAR_RGX, '').replace(SORT_RGX, '').toLowerCase().split(' ').map(t => t.trim()).filter(t => !!t)
+    return [terms, langMatch, yearMatch, sortMatch]
   }, [srch])
   const [singstarFilter, setSingstarFilter] = useState(false)
   const [showUnincluded, setShowUnincluded] = useState(false)
@@ -102,7 +104,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
       const extraSongs = Object.entries(songlist).filter(([g]) => !(gFilterActive && genresToShow.includes(g))).map(([,ss])=>ss).flat().filter(s => s.e === 's')
       newDisplaySongs = gFilterActive ? [...newDisplaySongs, ...extraSongs] : extraSongs
     }
-    newDisplaySongs.sort((a,b) => a.id.localeCompare(b.id))
+    sortSongs(newDisplaySongs, sortSpec)
 
     if (langFilter)
       newDisplaySongs = newDisplaySongs.filter(({l}) => l === langFilter)
@@ -119,7 +121,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
     dataProviderRef.current = dataProviderRef.current.cloneWithRows(newDisplaySongs)
     return [newDisplaySongs, dataProviderRef.current, newDisplaySongs[selectedItemIndex] ?? null]
-  }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, selectedSong, inclFilters, srchTerms]);
+  }, [songlist, genresToShow, singstarFilter, langFilter, yearFilter, sortSpec, selectedSong, inclFilters, srchTerms]);
 
   const searchFocused = useRef(false)
   const searchBox = 
@@ -324,4 +326,39 @@ function addSongNotice() {
       {/* Or if you got ultrastar files for me: even better! You can drop those <a href="https://mega.nz/megadrop/Id6ACZf_WrI" target="_blank" rel="noreferrer">in here</a>! */}
     </p>
   )
+}
+
+const VALID_SORT_RGX = /(title|artist|year|lang|genre|source|length|random|added)(_desc)?/
+
+function sortSongs(songs: EnhancedSongListItem[], sortSpec?: string|null): EnhancedSongListItem[] {
+  const [sortType, desc] = sortSpec?.match(VALID_SORT_RGX) ?? [null, null]
+
+  const s = songs.sort((a,b) => a.id.localeCompare(b.id))
+
+  switch (sortType) {
+    case undefined:
+    case 'id':
+    case 'artist':
+      return desc ? s.reverse() : s
+    case 'title':
+      return s.sort((a,b) => a.id.match(/ : .+/)![0].localeCompare(b.id.match(/ : .+/)![0]) * (desc ? -1 : 1))
+    case 'year':
+      return s.sort((a,b) => (a.y ?? 99999) - (b.y ?? 99999) * (desc ? -1 : 1))
+    case 'lang':
+      return s.sort((a,b) => (a.l ?? 'zzz').localeCompare(b.l ?? 'zzz') * (desc ? -1 : 1))
+    case 'genre':
+      return s.sort((a,b) => a.g.localeCompare(b.g) * (desc ? -1 : 1))
+    case 'source':
+      return s.sort((a,b) => (a.s ?? 'zzz').localeCompare(b.s ?? 'zzz') * (desc ? -1 : 1))
+    // case 'length':
+    //   return s.sort((a,b) => (a.d ?? 0) - (b.d ?? 0) * (desc ? -1 : 1))
+    case 'random':
+      // todo: this is going to reshuffle every time the search box changes innit :pensive:
+      return s.sort(() => Math.random() - 0.5)
+    // case 'added':
+    //   return s.sort((a,b) => (a.a ?? 0) - (b.a ?? 0) * (desc ? -1 : 1))
+    default:
+      return s
+  }
+  
 }
