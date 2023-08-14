@@ -236,6 +236,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         {qAccess && <h1>Songlist</h1>}
         <div className={`sticky-section-backdrop pane`}></div>
         <div className={`filter-section pane ${filtersOpened ? '' : 'collapsed'}`}>
+          {/* todo: (i) icon which opens modal with a lil bit of info */}
           <h3><button onClick={() => setFiltersOpened(v=>!v)} className='link-btn'>FILTERS</button></h3>
           
           <Collapse isOpened={filtersOpened}>
@@ -356,7 +357,7 @@ function sortSongs(songs: EnhancedSongListItem[], sortSpec?: string|null): Enhan
       // todo: this is going to reshuffle every time the search box changes innit :pensive:
       return s.sort(() => Math.random() - 0.5)
     case 'added':
-      return s.sort((a,b) => (a.t ?? 'zzz').localeCompare(b.t ?? 'zzz') * (desc ? -1 : 1))
+      return s.sort((a,b) => ((b.t ?? 0) - (a.t ?? 0)) * (desc ? -1 : 1))
     default:
       return s
   }

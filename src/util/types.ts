@@ -23,7 +23,7 @@ export type SongListItem = {
   /** edition. s=singstar */
   e?: 's'
   /** added timestamp */
-  t?: string
+  t?: number
   // /** genre */
   // g?: string
 }
