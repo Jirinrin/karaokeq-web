@@ -343,7 +343,7 @@ function sortSongs(songs: EnhancedSongListItem[], sortSpec?: string|null): Enhan
     case 'title':
       return s.sort((a,b) => a.id.match(/ : .+/)![0].localeCompare(b.id.match(/ : .+/)![0]) * (desc ? -1 : 1))
     case 'year':
-      return s.sort((a,b) => (a.y ?? 99999) - (b.y ?? 99999) * (desc ? -1 : 1))
+      return s.sort((a,b) => ((a.y ?? 99999) - (b.y ?? 99999)) * (desc ? -1 : 1))
     case 'lang':
       return s.sort((a,b) => (a.l ?? 'zzz').localeCompare(b.l ?? 'zzz') * (desc ? -1 : 1))
     case 'genre':
@@ -355,10 +355,9 @@ function sortSongs(songs: EnhancedSongListItem[], sortSpec?: string|null): Enhan
     case 'random':
       // todo: this is going to reshuffle every time the search box changes innit :pensive:
       return s.sort(() => Math.random() - 0.5)
-    // case 'added':
-    //   return s.sort((a,b) => (a.a ?? 0) - (b.a ?? 0) * (desc ? -1 : 1))
+    case 'added':
+      return s.sort((a,b) => (a.t ?? 'zzz').localeCompare(b.t ?? 'zzz') * (desc ? -1 : 1))
     default:
       return s
   }
-  
 }
