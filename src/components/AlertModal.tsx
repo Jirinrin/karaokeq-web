@@ -56,7 +56,7 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
       case 'selector':
         return (
           <>
-            <div className="menu-btns" style={{display: 'flex', flexDirection: 'row'}}>
+            <div className="menu-btns">
               {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {p.hide(); cb()}}>{label}</button>)}
             </div>
             <button className='link-btn close-btn' onClick={p.hide}>CANCEL</button>
