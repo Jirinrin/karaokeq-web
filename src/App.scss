@@ -169,7 +169,12 @@ button, .link-btn {
   // right: 14px;
   top: 107px;
   display: block;
-  margin: 14px 0 0;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  text-orientation: sideways;
+  text-align: center;
+  margin: 14px  0 0;
+  padding: 6px 6px;
 }
 
 .modal-dialog-thing {
@@ -412,12 +417,10 @@ button, .link-btn {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+  gap: 7px;
   > .input-block {
     display: block;
     float: right;
-    + .input-block {
-      margin-left: 7px;
-    }
   }
 }
 

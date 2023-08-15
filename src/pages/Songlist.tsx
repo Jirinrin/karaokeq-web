@@ -200,10 +200,10 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
         {qAccess
           ? <div className='sticky-section'>
               <div className="input-block-flekz" onFocus={() => selectedSong && setSelectedSong(null)}>
+                <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK</Link>
                 {searchBox}
                 <NameWidget />
               </div>
-              <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK</Link>
             </div>
           : <div className='sticky-section anon'>{searchBox}</div>
         }
@@ -217,6 +217,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           }
         </SelectedSongModal>
 
+        {/* todo: proper vertical flex thingy */}
         <div className={`select-random modal-dialog-thing`}>
           <button className='link-btn' onClick={() => {
             const i = Math.floor(Math.random()*displaySongs.length)
