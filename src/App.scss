@@ -366,11 +366,10 @@ button, .link-btn {
     max-height: 70vh;
     overflow-y: scroll;
     .menu-btns {
-      display: block;
-      > button {
-        display: inline-block;
-        margin: 3px
-      }
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      flex-wrap: wrap;
     }
   }
 }
