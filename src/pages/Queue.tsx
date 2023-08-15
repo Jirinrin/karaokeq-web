@@ -84,6 +84,8 @@ export default function Queue() {
         </SelectedSongModal>
 
         <div className="input-block-flekz">
+          <button onClick={refreshQueue} className="link-btn back-to-queue-btn">REFRESH</button>
+          <div style={{flex: '1'}}></div>
           <NameWidget />
         </div>
         <Link to={`/${domain}/songlist`} className="link-btn sticky-link-btn">REQUEST A SONG</Link>

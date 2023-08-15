@@ -68,7 +68,6 @@ function _useAppContext() {
 
   const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tiled') ? 'tiled' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
 
-
   useEffect(() => { localStorage.setItem('username', userName) }, [userName])
   useEffect(() => { adminToken && localStorage.setItem(`admintoken_${domain}`, adminToken) }, [adminToken, domain])
   useEffect(() => { setAdminToken(localStorage.getItem(`admintoken_${domain}`) || null) }, [domain])
