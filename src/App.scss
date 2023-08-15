@@ -281,7 +281,6 @@ button, .link-btn {
   }
   &.scroll-to-top {
     bottom: 63px;
-    right: 14px;
     transition: translate 0.3s ease, opacity 0.3s ease;
     &.hidden {
       opacity: 0;
@@ -290,7 +289,9 @@ button, .link-btn {
   }
   &.select-random {
     bottom: 14px;
-    right: 14px;
+  }
+  &.scroll-to-top, &.select-random {
+    right: calc(14px + max(100vw - 1070px, 0px) / 2 + 5px);
   }
 }
 
