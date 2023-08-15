@@ -357,8 +357,8 @@ button, .link-btn {
   }
 
   &.type-selector {
-    width: min(max(50vw, 600px), 60vw);
-    max-height: min(max(50vh, 500px), 70vh);
+    width: 60vw;
+    max-height: 70vh;
     overflow-y: scroll;
     .menu-btns {
       display: flex;
