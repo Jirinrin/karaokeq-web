@@ -354,6 +354,14 @@ button, .link-btn {
       box-shadow: black 2px 2px 0px;
     }
   }
+
+  &.type-selector {
+    max-width: 50vw;
+    max-height: 50vh;
+    .menu-btns {
+      flex-wrap: wrap;
+    }
+  }
 }
 
 .backdrop-glass-pane {

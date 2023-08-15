@@ -192,6 +192,8 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   const openAddSongModal = () => setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})
 
+  const jumpBtns = useMemo(() => getJumpBtns(sortSpec), [sortSpec])
+
   return (
     // oh-snap is only set after initial page load, because otherwise it'll sometimes randomly snap to the bottom
     <div className={`Songlist page ${initialLoaded ? 'oh-snap' : ''}`} ref={pageRef}>
@@ -281,6 +283,17 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           Songs <span>{displaySongs.length}</span>{' '}
           <button className='song-title-btn' onClick={e => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
           <button className='song-title-btn' onClick={e => {e.stopPropagation(); openAddSongModal()}}><em>ADD</em></button>
+          {jumpBtns &&
+            <button className='song-title-btn' onClick={(e) => {
+              e.stopPropagation()
+              setAlert({type: 'selector', title: jumpBtns.title, btns: jumpBtns.options.map(([opt, indexGetter]) => [opt, () => {
+                const i = indexGetter(displaySongs)
+                if (i !== -1) songlistRef.current?.scrollToIndex(i, true)
+              }])})
+            }}>
+              {jumpBtns.btn}
+            </button>
+          }
         </h2>
         <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`} style={{width: '100%', height: screenHeight-160}}>
           {initialLoaded &&
@@ -330,15 +343,15 @@ function addSongNotice() {
   )
 }
 
-const VALID_SORT_RGX = /^(title|artist|year|lang|genre|source|length|random|added)(_desc)?/
+const VALID_SORT_RGX = /^(title|artist|year|lang|genre|source|length|random|added|id)(_desc)?/
 
 function sortSongs(songs: EnhancedSongListItem[], sortSpec?: string|null): EnhancedSongListItem[] {
-  const [, sortType, desc] = sortSpec?.match(VALID_SORT_RGX) ?? [null, null]
+  const [, sortType, desc] = sortSpec?.match(VALID_SORT_RGX) ?? [null, null, null]
 
   const s = songs.sort((a,b) => a.id.localeCompare(b.id))
 
   switch (sortType) {
-    case undefined:
+    case null:
     case 'id':
     case 'artist':
       return desc ? s.reverse() : s
@@ -361,5 +374,60 @@ function sortSongs(songs: EnhancedSongListItem[], sortSpec?: string|null): Enhan
       return s.sort((a,b) => ((b.t ?? 0) - (a.t ?? 0)) * (desc ? -1 : 1))
     default:
       return s
+  }
+}
+
+
+const LETTERS = '0ABCDEFGHIJKLMNOPQRSTUVWXYZあ杏α'.split('')
+const YEARS = [1950,1960,1970,1980,1985,1990,1995,2000,2005,2010,2015,2020,2025] as const
+
+type JumpOption = [opt: string, getIndex: (sl: EnhancedSongListItem[]) => number]
+function getJumpBtns(sortSpec?: string|null): {btn: string, title: string, options: JumpOption[]} | null {
+  const [, sortType, desc] = sortSpec?.match(VALID_SORT_RGX) ?? [null, null, null]
+  const asc = !desc
+
+  const findLetterFn = (letter: string, compareGetter: (s: EnhancedSongListItem) => string|undefined) => (songs: EnhancedSongListItem[]): number => {
+    const ll = letter.toLowerCase()
+    return songs.findIndex(s => (compareGetter(s)?.toLowerCase().localeCompare(ll) ?? 0) * (desc ? -1 : 1) >= 0)
+  }
+  const findNumberFn = (num: number, compareGetter: (s: EnhancedSongListItem) => number|undefined) => (songs: EnhancedSongListItem[]): number => {
+    return songs.findIndex(s => ((((compareGetter(s) ?? 9999) - num) * (desc ? -1 : 1) >= 0)))
+  }
+
+  switch (sortType) {
+    case null:
+    case 'id':
+    case 'artist':
+      return {
+        btn: asc ? 'a..b..c...' : 'z..y..x...',
+        title: 'Jump to letter',
+        options: (asc ? LETTERS : [...LETTERS].reverse()).map(l => [l, findLetterFn(l, s => s.id[0])] as JumpOption),
+      }
+    case 'title':
+      return {
+        btn: asc ? 'a..b..c...' : 'z..y..x...',
+        title: 'Jump to letter',
+        options: (asc ? LETTERS : [...LETTERS].reverse()).map(l => [l, findLetterFn(l, s => s.id.match(/(?<= : )./)![0])] as JumpOption),
+      }
+    case 'year':
+      return {
+        btn: asc ? '1950..1960...' : '2025..2020...',
+        title: 'Jump to year',
+        options: (asc ? YEARS : [...YEARS].reverse()).map(n => [`${n}`, findNumberFn(n, s => s.y)] as JumpOption),
+      }
+    // todo
+    // case 'lang':
+    //   return 
+    // case 'genre':
+    //   return 
+    // case 'source':
+    //   return 
+    // // case 'length':
+    // //   return 
+    // case 'added':
+    //   return 
+    case 'random':
+    default:
+      return null
   }
 }

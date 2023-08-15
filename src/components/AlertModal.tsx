@@ -5,7 +5,7 @@ export type Alert = {
   superTitle?: string
   body?: ReactNode
   class?: string
-} & ({type: 'notify'} | {type: 'confirm'; confirmLabel?: string; onConfirm: () => void} | {type: 'menu', btns: [string, () => void][]});
+} & ({type: 'notify'} | {type: 'confirm'; confirmLabel?: string; onConfirm: () => void} | {type: 'menu', btns: [string, () => void][]} | {type: 'selector', btns: [string, () => void][]});
 
 export const errorAlert = (err: string): Alert => ({type: 'notify', class: 'error-modal', title: err, superTitle: 'Encountered error'})
 
@@ -14,7 +14,7 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
   return (
     <>
       <div className={`backdrop-glass-pane ${invClass}`} onClick={p.hide} aria-hidden={!p.visible}></div>
-      <div className={`pane modal-dialog-thing alert-modal ${alert?.class ?? ''} ${invClass}`}>
+      <div className={`pane modal-dialog-thing alert-modal ${alert?.class ?? ''} type-${alert?.type} ${invClass}`}>
         {alert ? (<>
           {alert.superTitle && <p>{alert.superTitle}</p>}
           <h2>{alert.title}</h2>
@@ -50,6 +50,16 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
               {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {p.hide(); cb()}}>{label}</button>)}
             </div>
             <button className='link-btn close-btn' onClick={p.hide}>CLOSE</button>
+          </>
+        )
+
+      case 'selector':
+        return (
+          <>
+            <div className="menu-btns" style={{display: 'flex', flexDirection: 'row'}}>
+              {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {p.hide(); cb()}}>{label}</button>)}
+            </div>
+            <button className='link-btn close-btn' onClick={p.hide}>CANCEL</button>
           </>
         )
         
