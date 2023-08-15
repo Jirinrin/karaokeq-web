@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export type Alert = {
   title: string
@@ -9,11 +9,27 @@ export type Alert = {
 
 export const errorAlert = (err: string): Alert => ({type: 'notify', class: 'error-modal', title: err, superTitle: 'Encountered error'})
 
-export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | null; hide: () => void}) {
-  const invClass = p.visible ? '' : 'invisible';
+export function AlertModal({alert, hide, visible}: {visible: boolean; alert?: Alert | null; hide: () => void}) {
+  // todo: use visibility lib thingy
+  const [gone, setGone] = useState(true);
+
+  const doHide = useCallback(() => {
+    setGone(false)
+    hide()
+    setTimeout(() => setGone(true), 300)
+  }, [hide])
+
+  useEffect(() => {
+    if (!visible && gone) setGone(false)
+  }, [gone, visible])
+
+  if (!visible && gone)
+    return null
+
+  const invClass = visible && !gone ? '' : 'invisible';
   return (
     <>
-      <div className={`backdrop-glass-pane ${invClass}`} onClick={p.hide} aria-hidden={!p.visible}></div>
+      <div className={`backdrop-glass-pane ${invClass}`} onClick={doHide} aria-hidden={!visible}></div>
       <div className={`pane modal-dialog-thing alert-modal ${alert?.class ?? ''} type-${alert?.type} ${invClass}`}>
         {alert ? (<>
           {alert.superTitle && <p>{alert.superTitle}</p>}
@@ -29,15 +45,15 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
     switch (a.type) {
 
       case 'notify':
-        return <button className='link-btn' onClick={p.hide}>CLOSE</button>
+        return <button className='link-btn' onClick={doHide}>CLOSE</button>
   
       case 'confirm':
         return (
           <div className="flex-row">
-            <button className="link-btn secondary" onClick={p.hide}>
+            <button className="link-btn secondary" onClick={doHide}>
               CANCEL
             </button>
-            <button className="link-btn" onClick={() => {a.onConfirm(); p.hide()}}>
+            <button className="link-btn" onClick={() => {a.onConfirm(); doHide()}}>
               {a.confirmLabel ?? 'OK'}
             </button>
           </div>
@@ -47,9 +63,9 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
         return (
           <>
             <div className="menu-btns">
-              {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {p.hide(); cb()}}>{label}</button>)}
+              {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {doHide(); cb()}}>{label}</button>)}
             </div>
-            <button className='link-btn close-btn' onClick={p.hide}>CLOSE</button>
+            <button className='link-btn close-btn' onClick={doHide}>CLOSE</button>
           </>
         )
 
@@ -57,9 +73,9 @@ export function AlertModal({alert, ...p}: {visible: boolean; alert?: Alert | nul
         return (
           <>
             <div className="menu-btns">
-              {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {p.hide(); cb()}}>{label}</button>)}
+              {a.btns.map(([label, cb],i) => <button key={i} onClick={() => {doHide(); cb()}}>{label}</button>)}
             </div>
-            <button className='link-btn close-btn' onClick={p.hide}>CANCEL</button>
+            <button className='link-btn close-btn' onClick={doHide}>CANCEL</button>
           </>
         )
         
