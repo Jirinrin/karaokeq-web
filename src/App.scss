@@ -349,10 +349,15 @@ button, .link-btn {
     gap: 8px;
     margin-top: 15px;
     button {
+      backdrop-filter: none;
+      background-color: rgb(63, 63, 63);
       margin: 0;
       border-radius: 7px;
       padding: 8px 15px;
       box-shadow: black 2px 2px 0px;
+      &:hover {
+        background-color: rgb(113, 113, 113);
+      }
     }
   }
 
