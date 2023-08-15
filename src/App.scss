@@ -416,8 +416,29 @@ button, .link-btn {
 
 .name-widget {
   max-width: 300px;
+  transition: max-width 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-right: 6px;
+
+  .expanded-content {
+    min-width: 100px;
+    flex: 1;
+  }
+  .collapsed-content {
+    writing-mode: vertical-lr;
+    text-orientation: sideways;
+    text-align: center;
+    margin-left: 10px;
+  }
+
   @media screen and (max-width: 700px) {
     max-width: 200px;
+  }
+  &.collapsed {
+    max-width: 35px;
   }
 }
 
@@ -426,10 +447,6 @@ button, .link-btn {
   display: flex;
   justify-content: flex-end;
   gap: 7px;
-  > .input-block {
-    display: block;
-    float: right;
-  }
 }
 
 .category-filter {

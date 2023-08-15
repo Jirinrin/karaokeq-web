@@ -204,7 +204,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
               <div className="input-block-flekz" onFocus={() => selectedSong && setSelectedSong(null)}>
                 <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK</Link>
                 {searchBox}
-                <NameWidget />
+                <NameWidget collapseIfFilled />
               </div>
             </div>
           : <div className='sticky-section anon'>{searchBox}</div>
