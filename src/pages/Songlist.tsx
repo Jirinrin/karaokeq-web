@@ -192,19 +192,18 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
 
   const openAddSongModal = () => setAlert({type: 'notify', title: 'ADDING SONGS', body: addSongNotice()})
 
-  const jumpBtnSpec = useMemo(() => getJumpBtns(sortSpec), [sortSpec])
-  const jumpBtns = useMemo(() => {
-      return jumpBtnSpec &&
-        <button className='song-title-btn' onClick={(e) => {
-          e.stopPropagation()
-          setAlert({type: 'selector', title: jumpBtnSpec.title, btns: jumpBtnSpec.options.map(([opt, indexGetter]) => [opt, () => {
-            const i = indexGetter(displaySongs)
-            if (i !== -1) songlistRef.current?.scrollToIndex(i, true)
-          }])})
-        }}>
-          {jumpBtnSpec.btn}
-        </button>
-  }, [displaySongs, jumpBtnSpec, setAlert])
+  const jumpBtnsPec = useMemo(() => getJumpBtns(sortSpec), [sortSpec])
+  const jumpBtn = useMemo(() => jumpBtnsPec && (
+      <button className='song-title-btn' onClick={(e) => {
+        e.stopPropagation()
+        setAlert({type: 'selector', title: jumpBtnsPec.title, btns: jumpBtnsPec.options.map(([opt, indexGetter]) => [opt, () => {
+          const i = indexGetter(displaySongs)
+          if (i !== -1) songlistRef.current?.scrollToIndex(i, true)
+        }])})
+      }}>
+        {jumpBtnsPec.btn}
+      </button>
+  ), [displaySongs, jumpBtnsPec, setAlert])
 
   return (
     // oh-snap is only set after initial page load, because otherwise it'll sometimes randomly snap to the bottom
@@ -295,7 +294,7 @@ export default function SongList({qAccess}: {qAccess?: boolean}) {
           Songs <span>{displaySongs.length}</span>{' '}
           <button className='song-title-btn' onClick={e => {e.stopPropagation(); setViewMode(viewMode === 'list' ? 'tiled' : 'list')}}>{viewMode.toUpperCase()}</button>
           <button className='song-title-btn' onClick={e => {e.stopPropagation(); openAddSongModal()}}><em>ADD</em></button>
-          {jumpBtns}
+          {jumpBtn}
         </h2>
         <div ref={songsWrapperRef} className={`songs-wrapper ${viewMode}-view`} style={{width: '100%', height: screenHeight-160}}>
           {initialLoaded &&

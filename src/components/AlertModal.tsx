@@ -20,7 +20,7 @@ export function AlertModal({alert, hide, visible}: {visible: boolean; alert?: Al
   }, [hide])
 
   useEffect(() => {
-    if (!visible && gone) setGone(false)
+    if (visible && gone) setGone(false)
   }, [gone, visible])
 
   if (!visible && gone)
