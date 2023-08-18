@@ -64,7 +64,7 @@ function _useAppContext() {
   // todo: allow some init filters set through the querystring or sth (e.g. west=true)
   const [inclFilters, setInclFilters] = useState<Record<Genre, boolean>>({})
 
-  useEffect(() => { setInclFilters(genres.filter(isGenre).reduce((acc, g) => ({...acc, [g]: false}), {})) }, [genres])
+  useEffect(() => { setInclFilters(genres.filter(isGenre).reduce((acc, g) => ({...acc, [g]: g.startsWith('w-') ? true : false}), {})) }, [genres])
 
   const [viewMode, setViewMode] = useState<ViewMode>(window.location.search.includes('tiled') ? 'tiled' : 'list') // debug feature to activate tile mode (don't want to activate it with a btn yet)
 
