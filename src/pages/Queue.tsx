@@ -84,7 +84,7 @@ export default function Queue() {
         </SelectedSongModal>
 
         <div className="input-block-flekz">
-          <button onClick={refreshQueue} className="link-btn back-to-queue-btn">REFRESH</button>
+          <span onClick={refreshQueue} style={{fontSize: '13px'}} className="link-btn back-to-queue-btn">REFRESH</span>
           <div style={{flex: '1'}}></div>
           <NameWidget />
         </div>
