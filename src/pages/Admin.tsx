@@ -5,12 +5,14 @@ import { useAppContext } from "../util/Context";
 import { BG_VIDEOS } from "../util/bgVideos";
 
 export function Admin() {
-  const {setAdminToken, config, setConfig} = useAppContext()
+  const {setAdminToken, config, setConfig, postSonglist} = useAppContext()
   const {domain} = useParams()
 
   const authorize = () => {
     setAdminToken(prompt('Please specify admin token'))
   }
+
+  const [slFile, setSlFile] = useState('')
 
   const [bgPictIndex, setBgPictIndex] = useState(0)
   const [customBgPictUrl, setCustomBgPictUrl] = useState('')
@@ -25,6 +27,9 @@ export function Admin() {
 
   const currentBgPict = BG_VIDEOS[bgPictIndex] ?? [customBgPictUrl, customBgPictFilter] ?? null
 
+  // todo: actually grab this songlist from an uploaded json
+  const submitSonglist = () => postSonglist(JSON.parse(slFile))
+
   const submitBgPict = () => setConfig({bgPict: currentBgPict})
   
   return (
@@ -33,6 +38,16 @@ export function Admin() {
         <Link to={`/${domain}`} className="link-btn back-to-queue-btn">BACK TO QUEUE</Link>
         <h1>Admin <button onClick={authorize}>Authorize</button></h1>
         
+        <div className="flex-col">
+          <h3>Songlist</h3>
+          <div className="flex-row wrap">
+            {/* todo: open modal with a little stepbystep tutorial */}
+            <p>How to do this?</p>
+            <label htmlFor="songlist-file">Upload your generated songlist.json here</label>
+            <input type='file' value={customBgPictUrl} placeholder="songlist.json" onChange={e => setSlFile(e.currentTarget.value)} id="songlist-file" />
+          </div>
+          <button onClick={submitBgPict}>UPLOAD</button>
+        </div>
         <div className="flex-col">
           <h3>Background picture</h3>
           <div className="flex-row wrap">

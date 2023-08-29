@@ -28,8 +28,6 @@ export default function ApplicationContext({children}: {children: React.ReactNod
   )
 }
 
-const SONGLISTS_BY_DOMAIN: Record<string, string> = {'dz-owee': 'songlist-w', q42: 'songlist-w'}
-
 function _useAppContext() {
   const domain = useLocation().pathname.match(/^\/([^/]+)/)?.[1]
 
@@ -53,11 +51,15 @@ function _useAppContext() {
     setTimeout(refreshConfig, 30000)
   }, [api, refreshConfig])
 
-  const songlistName = domain === 'songlist' ? 'songlist' : SONGLISTS_BY_DOMAIN[domain ?? ''] ?? 'songlist'
+  const postSonglist = useCallback(async (sl: SongList) => {
+    await api('post', 'songlist.json', sl)
+    setSonglist(enhanceSonglist(sl))
+    setTimeout(refreshConfig, 30000)
+  }, [api, refreshConfig])
+
   useEffect(() => {
-    fetch(`/${songlistName}.json`).then(r => r.json())
-      .then((sl: SongList) => setSonglist(Object.fromEntries(Object.entries(sl).map(([g,ss]) => [g, ss.map(s => ({...s, g}))]))))
-  }, [songlistName])
+    api('get', 'songlist.json').then(sl => setSonglist(enhanceSonglist(sl)))
+  }, [api])
 
   const genres = useMemo(() => songlist ? Object.keys(songlist) : [], [songlist])
 
@@ -73,10 +75,12 @@ function _useAppContext() {
   useEffect(() => { setAdminToken(localStorage.getItem(`admintoken_${domain}`) || null) }, [domain])
 
   return [
-    {songlist, genres, userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, adminToken, setAdminToken, config, setConfig},
+    {songlist, genres, userName, setUserName, queue, setQueue, inclFilters, setInclFilters, setAlert, viewMode, setViewMode, adminToken, setAdminToken, config, setConfig, postSonglist},
     // Internal ctx
     {alert}
   ] as const
 }
+
+const enhanceSonglist = (sl: SongList): EnhancedSongList => Object.fromEntries(Object.entries(sl).map(([g,ss]) => [g, ss.map(s => ({...s, g}))]))
 
 export type AppContext = ReturnType<typeof _useAppContext>[0];
