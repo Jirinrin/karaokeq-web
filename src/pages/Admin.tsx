@@ -12,7 +12,7 @@ export function Admin() {
     setAdminToken(prompt('Please specify admin token'))
   }
 
-  const [slFile, setSlFile] = useState('')
+  const [slFile, setSlFile] = useState<File|null|undefined>(null)
 
   const [bgPictIndex, setBgPictIndex] = useState(0)
   const [customBgPictUrl, setCustomBgPictUrl] = useState('')
@@ -28,7 +28,19 @@ export function Admin() {
   const currentBgPict = BG_VIDEOS[bgPictIndex] ?? [customBgPictUrl, customBgPictFilter] ?? null
 
   // todo: actually grab this songlist from an uploaded json
-  const submitSonglist = () => postSonglist(JSON.parse(slFile))
+  const submitSonglist = () => {
+    if (!slFile) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === 'string') {
+        postSonglist(JSON.parse(result));
+      } else {
+        console.error('Songlist file content is somehow not a string')
+      }
+    };
+    reader.readAsText(slFile);
+  }
 
   const submitBgPict = () => setConfig({bgPict: currentBgPict})
   
@@ -40,13 +52,10 @@ export function Admin() {
         
         <div className="flex-col">
           <h3>Songlist</h3>
-          <div className="flex-row wrap">
-            {/* todo: open modal with a little stepbystep tutorial */}
-            <p>How to do this?</p>
-            <label htmlFor="songlist-file">Upload your generated songlist.json here</label>
-            <input type='file' value={customBgPictUrl} placeholder="songlist.json" onChange={e => setSlFile(e.currentTarget.value)} id="songlist-file" />
-          </div>
-          <button onClick={submitBgPict}>UPLOAD</button>
+          {/* todo: open modal with a little stepbystep tutorial */}
+          <label htmlFor="songlist-file">Upload your generated songlist.json here</label>
+          <input type='file' placeholder="songlist.json" onChange={e => setSlFile(e.target.files?.[0])} id="songlist-file" />
+          <button onClick={submitSonglist}>UPLOAD</button>
         </div>
         <div className="flex-col">
           <h3>Background picture</h3>

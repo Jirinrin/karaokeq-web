@@ -29,7 +29,8 @@ export default function ApplicationContext({children}: {children: React.ReactNod
 }
 
 function _useAppContext() {
-  const domain = useLocation().pathname.match(/^\/([^/]+)/)?.[1]
+  let domain = useLocation().pathname.match(/^\/([^/]+)/)?.[1]
+  if (domain === 'songlist') domain = 'jiri';
 
   const [songlist, setSonglist] = useState<EnhancedSongList|null>(null)
   const [userName, setUserName] = useState(localStorage.getItem('username') ?? '')
@@ -54,11 +55,10 @@ function _useAppContext() {
   const postSonglist = useCallback(async (sl: SongList) => {
     await api('post', 'songlist.json', sl)
     setSonglist(enhanceSonglist(sl))
-    setTimeout(refreshConfig, 30000)
-  }, [api, refreshConfig])
+  }, [api])
 
   useEffect(() => {
-    api('get', 'songlist.json').then(sl => setSonglist(enhanceSonglist(sl)))
+    api('get', 'songlist.json').then(sl => setSonglist(enhanceSonglist(sl))).catch(console.warn)
   }, [api])
 
   const genres = useMemo(() => songlist ? Object.keys(songlist) : [], [songlist])
