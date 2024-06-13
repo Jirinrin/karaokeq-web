@@ -18,8 +18,10 @@ Structure: (karaoke.jirinrin.com)
 export default function App() {
   const {config} = useAppContext()
 
+  var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
   return (
-    <div className="App">
+    <div className={`App ${isSafari ? 'browser-safari' : ''}`}>
       <BackgroundPict pict={config ? config.bgPict ?? BG_VIDEOS[0] : null} />
       <Routes>
         <Route path="/" element={<Navigate to="/songlist" replace />} />
