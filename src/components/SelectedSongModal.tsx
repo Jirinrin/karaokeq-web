@@ -33,7 +33,10 @@ export const SelectedSongModal = ({selectedSong, ...p}: {selectedSong: string|So
           {sss?.y && <span className="year-label">{sss.y}</span>}
         </h3>
         {p.children}
-        {sss?.l && <span className="lang-label">{sss.l}</span>}
+        <div className="corner-labels">
+          {sss?.t && <span className="added-label">{'Added ' + new Date(sss.t*1000).toLocaleDateString('nl', {dateStyle: 'short'})}</span>}
+          {sss?.l && <span className="lang-label">{sss.l}</span>}
+        </div>
         <button className='link-btn close-btn' onClick={() => p.unsetSelectedSong()}></button>
       </div>
     </div>

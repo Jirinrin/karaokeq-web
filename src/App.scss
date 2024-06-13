@@ -252,18 +252,23 @@ button, .link-btn {
       margin-inline-start: 9px;
       font-size: 12px;
     }
-    .lang-label {
-      font-weight: 100;
-      background-color: #e5e5e5;
-      color: black;
-      opacity: 0.6;
-      font-size: 10px;
-      padding: 1px 4px;
-      border-radius: 4px;
+    .corner-labels {
       position: absolute;
       top: 10px;
       right: 10px;
-      text-transform: uppercase;
+      display: flex;
+      gap: 5px;
+
+      .lang-label, .added-label {
+        font-weight: 100;
+        background-color: #e5e5e5;
+        color: black;
+        opacity: 0.6;
+        font-size: 10px;
+        padding: 1px 4px;
+        border-radius: 4px;
+        text-transform: uppercase;
+      }
     }
     > * {
       box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.733);
