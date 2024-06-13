@@ -18,7 +18,8 @@ Structure: (karaoke.jirinrin.com)
 export default function App() {
   const {config} = useAppContext()
 
-  var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  // var isSafari = /webkitapple/i.test(navigator.userAgent);
+  var isSafari = false
 
   return (
     <div className={`App ${isSafari ? 'browser-safari' : ''}`}>
