@@ -269,6 +269,9 @@ button, .link-btn {
         border-radius: 4px;
         text-transform: uppercase;
       }
+      .added-label {
+        font-style: italic;
+      }
     }
     > * {
       box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.733);
@@ -673,12 +676,6 @@ h2.songs-title {
       80% { transform: translateX(-100%); left: calc(100% - 18px + 9px); animation-timing-function: ease-in; }
       100% { transform: translateX(0); left: 9px; }
     }
-    @-webkit-keyframes scrll {
-      0% { -webkit-transform: translateX(0); left: 9px; }
-      40% { -webkit-transform: translateX(0); left: 9px; animation-timing-function: ease; }
-      80% { -webkit-transform: translateX(-100%); left: calc(100% - 18px + 9px); animation-timing-function: ease-in; }
-      100% { -webkit-transform: translateX(0); left: 9px; }
-    }
 
     > span:first-child {
       display: inline-block;
@@ -697,7 +694,7 @@ h2.songs-title {
         position: absolute;
         left: 9px;
         animation: scrll forwards infinite ease;
-        -webkit-animation: scrll forwards infinite ease;
+        -webkit-animation: none;
       }
     }
   }
