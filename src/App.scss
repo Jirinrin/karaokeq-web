@@ -698,6 +698,7 @@ h2.songs-title {
         left: 9px;
         animation: scrll forwards infinite ease;
         
+        // this targets some older safari versions that cannot handle this animation
         @media not all and (min-resolution:.001dpcm) { @supports (-webkit-appearance:none) {
           animation: none;          
         }}
@@ -708,6 +709,12 @@ h2.songs-title {
   span {
     font-family: 'M PLUS Rounded 1c', sans-serif;
   }
+}
+
+// this targets newer safari versions that cannot handle this animation
+.song-item 
+_::-webkit-full-page-media, _:future, :root .song-item .song-name.scrolling > span.anim {
+  animation: none;
 }
 
 .category-chip {
