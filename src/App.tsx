@@ -19,6 +19,7 @@ export default function App() {
   const {config} = useAppContext()
 
   var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  alert(`hoi ${isSafari} - ${navigator.userAgent}`)
 
   return (
     <div className={`App ${isSafari ? 'browser-safari' : ''}`}>
